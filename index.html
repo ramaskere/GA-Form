@@ -13,7 +13,8 @@
   .card{ width:min(640px,94vw); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
          box-shadow:0 20px 60px rgba(0,0,0,.10); overflow:hidden; }
   header{ padding:20px 22px 0; text-align:center; }
-  h1{ margin:0; font-size:24px; font-weight:800; } p.lead{ margin:8px 0 16px; color:#424245; font-size:15px; }
+  h1{ margin:0; font-size:24px; font-weight:800; } 
+  p.lead{ margin:8px 0 16px; color:#424245; font-size:15px; }
   .form-body{ padding:18px; display:grid; gap:14px; } .row{ display:grid; gap:10px; }
   label{ font-size:13px; color:#424245; font-weight:600; }
   input,select{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fafafa; font-size:14px; outline:none; }
@@ -21,14 +22,15 @@
   .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:4px; }
   .btn{ appearance:none; padding:11px 16px; border-radius:999px; font-weight:700; cursor:pointer; border:1px solid #cfd2d8; background:#fff; }
   .btn.primary{ background:var(--accent); color:#fff; border-color:var(--accent); } .btn:hover{ filter:brightness(.98); }
-  .hidden{ display:none !important; } footer.note{ padding:0 18px 18px; color:#6e6e73; font-size:12.5px; text-align:center; }
+  .hidden{ display:none !important; } 
+  footer.note{ padding:0 18px 18px; color:#6e6e73; font-size:12.5px; text-align:center; }
 </style>
 </head>
 <body>
 <main class="card" role="dialog" aria-modal="true" aria-labelledby="form-title">
   <header>
-    <h1 id="form-title">Antes de ver los modelos 👋</h1>
-    <p class="lead">Dejanos tus datos así te ayudamos a elegir mejor.</p>
+    <h1 id="form-title">🔥 Ganá 10% de Descuento 🔥</h1>
+    <p class="lead">Completá el formulario y accedé a un <strong>10% OFF</strong> en tu próximo iPhone.</p>
   </header>
 
   <section class="form-body">
@@ -70,7 +72,7 @@
     </div>
   </section>
 
-  <footer class="note">Completar el formulario mejora tus recomendaciones y tiempos de respuesta.</footer>
+  <footer class="note">Completando el formulario obtenés tu beneficio del 10% OFF.</footer>
 </main>
 
 <script>
@@ -80,10 +82,9 @@
   const $name=document.getElementById('lf-name'), $mail=document.getElementById('lf-email');
   const $tel=document.getElementById('lf-phone'), $bud=document.getElementById('lf-budget');
 
-  // ✅ UNA sola barra en el HTML final (String.raw lo respeta)
-  const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const emailOk=v=> EMAIL_RE.test((v||'').trim()) && $mail.checkValidity(); // doble seguro
-  const phoneOk=v=> ((v||'').match(/\d/g) || []).length >= 8;               // al menos 8 dígitos
+  const EMAIL_RE=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+  const emailOk=v=> EMAIL_RE.test((v||'').trim()) && $mail.checkValidity();
+  const phoneOk=v=> ((v||'').match(/\\d/g) || []).length >= 8;
 
   const requiredFilled=()=> ($name.value||'').trim() && emailOk($mail.value) && phoneOk($tel.value);
 
@@ -100,7 +101,6 @@
 
   function goCatalog(){
     const target = new URL('/', 'https://goapple-catalogo.vercel.app');
-    // (opcional) pasar datos por query:
     const qs = new URLSearchParams({
       name: ($name.value||'').trim(),
       email: ($mail.value||'').trim(),
@@ -127,7 +127,7 @@
     if(budget==='400-600' || budget==='700-900' || budget==='mas900'){
       goCatalog();
     } else {
-      alert('¡Gracias! Tus datos fueron guardados.');
+      alert('¡Gracias! Ya ganaste tu 10% OFF 🎉');
     }
   };
 })();

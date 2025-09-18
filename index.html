@@ -1,27 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '3997634023847682');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=3997634023847682&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
-
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>GO APPLE — Formulario</title>
+
+<!-- ✅ Meta Pixel Code (reemplaza TU_PIXEL_ID si corresponde) -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=TU_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
+<!-- ✅ End Meta Pixel Code -->
+
 <style>
   :root{ --bg:#ffffff; --surface:#ffffff; --line:#e6e6e9; --ink:#1d1d1f; --muted:#6e6e73; --accent:#0071e3; --radius:16px; }
   *{box-sizing:border-box} html,body{height:100%}
@@ -123,11 +117,10 @@ src="https://www.facebook.com/tr?id=3997634023847682&ev=PageView&noscript=1"
     disableFormForever();
   }
 
-  // Validaciones robustas (UNA sola barra en el HTML final)
-  const EMAIL_RE=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+  // ✅ Validaciones (UNA sola barra en el HTML final)
+  const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const emailOk=v=> EMAIL_RE.test((v||'').trim()) && $mail.checkValidity();
-  const phoneOk=v=> ((v||'').match(/\\d/g) || []).length >= 8;
-
+  const phoneOk=v=> ((v||'').match(/\d/g) || []).length >= 8;
   const requiredFilled=()=> ($name.value||'').trim() && emailOk($mail.value) && phoneOk($tel.value);
 
   // Recolección de UTM
@@ -148,7 +141,6 @@ src="https://www.facebook.com/tr?id=3997634023847682&ev=PageView&noscript=1"
         if (ok) return true;
       }
     }catch(_){}
-
     const controller = new AbortController();
     const t = setTimeout(()=>controller.abort(), 3500);
     try{
@@ -164,7 +156,7 @@ src="https://www.facebook.com/tr?id=3997634023847682&ev=PageView&noscript=1"
     return true;
   }
 
-  // Navegación
+  // Navegación pasos
   document.getElementById('next').onclick=()=>{
     if(!requiredFilled()){
       alert('Completá nombre, correo y WhatsApp válidos.');
@@ -175,17 +167,13 @@ src="https://www.facebook.com/tr?id=3997634023847682&ev=PageView&noscript=1"
   document.getElementById('back').onclick=()=>{ $s2.classList.add('hidden'); $s1.classList.remove('hidden'); };
   document.getElementById('cancel').onclick=()=>{ history.back(); };
 
-  // Redirección al catálogo (incluye query opcional)
-  function goCatalog(){
-    const target = new URL('https://goapple-catalogo.vercel.app/');
-    const qs = new URLSearchParams({
-      name: ($name.value||'').trim(),
-      email: ($mail.value||'').trim(),
-      phone: ($tel.value||'').trim(),
-      budget: $bud.value
-    });
-    target.search = qs.toString();
-    window.location.href = target.toString();
+  // Deep link a WhatsApp
+  function goWhatsApp(){
+    const msg = '👋 ¡Hola! Tengo un cupón de 10% de descuento';
+    const qs  = encodeURIComponent(msg);
+    const url = 'https://wa.me/5492646721845?text=' + qs;
+    // Usamos location.replace para que no puedan "volver" al paso y cambiar el presupuesto
+    location.replace(url);
   }
 
   // UI para presupuesto bajo
@@ -239,7 +227,15 @@ src="https://www.facebook.com/tr?id=3997634023847682&ev=PageView&noscript=1"
     };
     pushToSheet(payload);
 
-    try{ if(window.fbq){ fbq('track','Lead',{ value: budget, currency:'ARS' }); } }catch(_){}
+    // ✅ Pixel Lead
+    try {
+      if (window.fbq) {
+        fbq('track', 'Lead', {
+          name, email, phone, budget,
+          currency: 'ARS'
+        });
+      }
+    } catch (_) {}
 
     if(budget==='menos'){
       renderFinalMessage();
@@ -247,11 +243,8 @@ src="https://www.facebook.com/tr?id=3997634023847682&ev=PageView&noscript=1"
       return;
     }
 
-    if(budget==='400-600' || budget==='700-900' || budget==='mas900'){
-      goCatalog();
-    } else {
-      alert('¡Gracias! Ya ganaste tu 10% OFF 🎉');
-    }
+    // ✅ Para 400-600 / 700-900 / mas900 → WhatsApp directo
+    goWhatsApp();
   };
 })();
 </script>

@@ -1,252 +1,232 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>GO APPLE — Formulario</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>GO APPLE — Formulario</title>
 
-<!-- ✅ Meta Pixel Code (reemplaza TU_PIXEL_ID si corresponde) -->
-<script>
-!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=TU_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
-<!-- ✅ End Meta Pixel Code -->
+  <!-- ✅ Meta Pixel Code (ID real del cliente) -->
+  <script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init','650415544428771');
+  fbq('track','PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=650415544428771&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- ✅ End Meta Pixel Code -->
 
-<style>
-  :root{ --bg:#ffffff; --surface:#ffffff; --line:#e6e6e9; --ink:#1d1d1f; --muted:#6e6e73; --accent:#0071e3; --radius:16px; }
-  *{box-sizing:border-box} html,body{height:100%}
-  body{ margin:0; background:linear-gradient(180deg,#f7f8fb,#eef1f6); color:var(--ink);
-        font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-        display:grid; place-items:center; padding:18px; }
-  .card{ width:min(640px,94vw); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-         box-shadow:0 20px 60px rgba(0,0,0,.10); overflow:hidden; }
-  header{ padding:20px 22px 0; text-align:center; }
-  h1{ margin:0; font-size:24px; font-weight:800; } 
-  p.lead{ margin:8px 0 16px; color:#424245; font-size:15px; }
-  .form-body{ padding:18px; display:grid; gap:14px; } .row{ display:grid; gap:10px; }
-  label{ font-size:13px; color:#424245; font-weight:600; }
-  input,select{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fafafa; font-size:14px; outline:none; }
-  input[type="email"]:invalid{ border-color:#ffb4b4; }
-  .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:4px; }
-  .btn{ appearance:none; padding:11px 16px; border-radius:999px; font-weight:700; cursor:pointer; border:1px solid #cfd2d8; background:#fff; }
-  .btn.primary{ background:var(--accent); color:#fff; border-color:var(--accent); } .btn:hover{ filter:brightness(.98); }
-  .hidden{ display:none !important; } 
-  footer.note{ padding:0 18px 18px; color:#6e6e73; font-size:12.5px; text-align:center; }
+  <style>
+    :root{ --bg:#f7f8fb; --surface:#fff; --line:#e5e7eb; --ink:#1d1d1f; --accent:#0071e3; }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0; background:var(--bg); color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      display:grid; place-items:center; padding:20px;
+    }
+    .card{
+      width:min(640px,95vw); background:var(--surface); border:1px solid var(--line);
+      border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.12); padding:24px 22px;
+    }
+    h1{ margin:0 0 8px; font-size:24px; font-weight:800; text-align:center; }
+    p.lead{ text-align:center; color:#424245; margin:0 0 22px; }
+    form{ display:grid; gap:14px; }
+    label{ font-size:14px; font-weight:700; }
+    input,select{
+      width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px;
+      background:#fafafa; font-size:14px; outline:none;
+    }
+    button{
+      padding:12px 16px; border-radius:999px; border:0; font-weight:800;
+      background:var(--accent); color:#fff; cursor:pointer;
+    }
+    button[disabled]{ opacity:.7; cursor:not-allowed; }
+    .note{ margin-top:8px; text-align:center; color:#6b7280; font-size:12.5px; }
 
-  /* Mensaje final (cuando elijan "< 300k") */
-  .final-wrap{ padding:26px 22px 28px; text-align:center; }
-  .final-emoji{ font-size:42px; }
-  .final-title{ margin:10px 0 6px; font-size:22px; font-weight:800; }
-  .final-text{ margin:0 auto; max-width:520px; color:#424245; font-size:15px; line-height:1.45; }
-  .final-badge{ display:inline-block; margin-top:14px; padding:6px 12px; border-radius:999px; background:#eff6ff; color:#1e40af; font-weight:700; font-size:12.5px; border:1px solid #dbeafe; }
-  .final-ok{ margin-top:16px; padding:10px 16px; border-radius:999px; border:1px solid #cfd2d8; background:#fff; font-weight:700; cursor:default; color:#1d1d1f; }
-</style>
+    /* Mensaje final si presupuesto es "menos" */
+    .final-wrap{ text-align:center; padding:18px 6px; }
+    .final-emoji{ font-size:40px; }
+    .final-title{ margin:10px 0 6px; font-size:22px; font-weight:800; }
+    .final-text{ margin:0 auto; max-width:520px; color:#424245; font-size:15px; line-height:1.45; }
+    .final-badge{ display:inline-block; margin-top:14px; padding:6px 12px; border-radius:999px;
+                  background:#eff6ff; color:#1e40af; font-weight:700; font-size:12.5px; border:1px solid #dbeafe; }
+    .hide{ display:none !important; }
+  </style>
 </head>
 <body>
-<main class="card" role="dialog" aria-modal="true" aria-labelledby="form-title">
-  <header id="hdr">
-    <h1 id="form-title">🔥 Ganá 10% de Descuento 🔥</h1>
-    <p class="lead" id="form-lead">Completá el formulario y accedé a un <strong>10% OFF</strong> en tu próximo iPhone.</p>
-  </header>
+  <div class="card" id="card">
+    <h1>🔥 Ganá 10% de Descuento 🔥</h1>
+    <p class="lead">Completá el formulario y accedé a un <strong>10% OFF</strong> en tu próximo iPhone.</p>
 
-  <section class="form-body" id="form-body">
-    <!-- Paso 1 -->
-    <div id="step1" class="row">
+    <!-- ✅ Formulario -->
+    <form id="leadForm" autocomplete="on">
       <div>
-        <label for="lf-name">Nombre</label>
-        <input id="lf-name" type="text" placeholder="Tu nombre" autocomplete="name" />
+        <label for="nombre">Nombre</label>
+        <input type="text" name="nombre" id="nombre" required />
       </div>
       <div>
-        <label for="lf-email">Correo</label>
-        <input id="lf-email" type="email" placeholder="tu@email.com" autocomplete="email" required />
+        <label for="telefono">WhatsApp</label>
+        <input type="tel" name="telefono" id="telefono" required />
       </div>
       <div>
-        <label for="lf-phone">WhatsApp</label>
-        <input id="lf-phone" type="tel" placeholder="+54 9 ..." inputmode="tel" autocomplete="tel" />
-      </div>
-      <div class="actions">
-        <button class="btn" id="cancel">Cancelar</button>
-        <button class="btn primary" id="next">Continuar</button>
-      </div>
-    </div>
-
-    <!-- Paso 2 -->
-    <div id="step2" class="row hidden">
-      <div>
-        <label for="lf-budget">¿Cuál es tu inversión (ARS)?</label>
-        <select id="lf-budget">
+        <label for="presupuesto">¿Cuál es tu presupuesto?</label>
+        <select name="presupuesto" id="presupuesto" required>
+          <option value="">Seleccioná</option>
           <option value="menos">Menos de $300.000</option>
           <option value="400-600">$400.000 a $600.000</option>
           <option value="700-900">$700.000 a $900.000</option>
           <option value="mas900">Más de $900.000</option>
         </select>
       </div>
-      <div class="actions">
-        <button class="btn" id="back">Volver</button>
-        <button class="btn primary" id="send">Enviar</button>
+      <div>
+        <label for="modelo">Modelo de interés</label>
+        <input type="text" name="modelo" id="modelo" placeholder="Ej: iPhone 14 Pro" />
       </div>
-    </div>
-  </section>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <label for="ciudad">Ciudad</label>
+          <input type="text" name="ciudad" id="ciudad" />
+        </div>
+        <div>
+          <label for="pais">País</label>
+          <input type="text" name="pais" id="pais" />
+        </div>
+      </div>
+      <div>
+        <label for="califica">¿Califica?</label>
+        <select name="califica" id="califica">
+          <option value="">Seleccioná</option>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
+      </div>
 
-  <footer class="note" id="note">Completando el formulario obtenés tu beneficio del 10% OFF.</footer>
-</main>
+      <button type="submit" id="btnSend">Enviar</button>
+      <div class="note">Al enviar, registramos tus datos y podrás usar tu beneficio del 10% OFF.</div>
+    </form>
 
-<script>
-(function(){
-  const KEY='lead_form_done_v1';
-  const KEY_LOW='lead_low_budget_v1';
+    <!-- Contenedor para mensaje final -->
+    <div id="finalMsg" class="hide"></div>
+  </div>
 
-  const $hdr=document.getElementById('hdr');
-  const $body=document.getElementById('form-body');
-  const $note=document.getElementById('note');
+  <!-- ✅ Lógica del formulario, envío a Apps Script, Meta Pixel y WhatsApp -->
+  <script>
+  (function(){
+    const WEBHOOK = 'https://script.google.com/macros/s/XXXXXXXX/exec'; // ⬅️ Reemplazá por tu Apps Script Web App
+    const WA_NUMBER = '5492646721845'; // wa.me sin + ni espacios (tu número)
+    const WA_MSG = '👋 ¡Hola! Tengo un cupón de 10% de descuento';
 
-  const $s1=document.getElementById('step1');
-  const $s2=document.getElementById('step2');
-  const $name=document.getElementById('lf-name');
-  const $mail=document.getElementById('lf-email');
-  const $tel=document.getElementById('lf-phone');
-  const $bud=document.getElementById('lf-budget');
+    const $form = document.getElementById('leadForm');
+    const $btn  = document.getElementById('btnSend');
+    const $final= document.getElementById('finalMsg');
+    const $card = document.getElementById('card');
 
-  // Si ya quedó marcado presupuesto bajo en esta sesión, mostrar mensaje final
-  if (sessionStorage.getItem(KEY_LOW) === '1') {
-    renderFinalMessage();
-    disableFormForever();
-  }
+    // Helpers simples (evitamos regex para no romper n8n)
+    const hasMinDigits = (s, n=8) => ((s||'').replace(/\\D/g,'').length >= n);
 
-  // ✅ Validaciones (UNA sola barra en el HTML final)
-  const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const emailOk=v=> EMAIL_RE.test((v||'').trim()) && $mail.checkValidity();
-  const phoneOk=v=> ((v||'').match(/\d/g) || []).length >= 8;
-  const requiredFilled=()=> ($name.value||'').trim() && emailOk($mail.value) && phoneOk($tel.value);
+    function estimateValue(b) {
+      if (b === '400-600') return 500000;
+      if (b === '700-900') return 800000;
+      if (b === 'mas900')  return 1000000;
+      return 0;
+    }
 
-  // Recolección de UTM
-  function collectUTMs(){
-    const q = new URLSearchParams(location.search);
-    return {
-      utm_source:  q.get('utm_source')  || '',
-      utm_medium:  q.get('utm_medium')  || '',
-      utm_campaign:q.get('utm_campaign')|| '',
-    };
-  }
+    function goWhatsApp(){
+      const url = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(WA_MSG);
+      // replace -> no pueden volver atrás a cambiar presupuesto
+      location.replace(url);
+    }
 
-  // Enviar al webhook sin bloquear la UX
-  async function pushToSheet(payload){
-    try{
-      if (navigator.sendBeacon) {
-        const ok = navigator.sendBeacon('https://primary-production-639e.up.railway.app/webhook/goapple-leads', new Blob([JSON.stringify(payload)], {type:'application/json'}));
-        if (ok) return true;
+    function showFinal(){
+      const html = [
+        '<div class="final-wrap">',
+          '<div class="final-emoji">👋</div>',
+          '<div class="final-title">¡Gracias por tu interés!</div>',
+          '<p class="final-text">Por el momento no contamos con stock dentro de ese presupuesto.',
+          ' En breve ingresan iPhones nuevos 📲. Te voy a contactar apenas tengamos disponibilidad ',
+          'para que aproveches tu <strong>10% OFF</strong>.</p>',
+          '<span class="final-badge">Tu solicitud quedó registrada</span>',
+        '</div>'
+      ].join('');
+      $final.innerHTML = html;
+      $final.classList.remove('hide');
+      $form.classList.add('hide');
+      try {
+        history.pushState({blocked:true}, '');
+        window.addEventListener('popstate', ()=> history.pushState({blocked:true}, ''));
+      } catch(_) {}
+    }
+
+    $form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fd = new FormData($form);
+      const nombre      = (fd.get('nombre')||'').trim();
+      const telefono    = (fd.get('telefono')||'').trim();
+      const presupuesto = (fd.get('presupuesto')||'').trim();
+      const modelo      = (fd.get('modelo')||'').trim();
+      const ciudad      = (fd.get('ciudad')||'').trim();
+      const pais        = (fd.get('pais')||'').trim();
+      const califica    = (fd.get('califica')||'').trim();
+
+      if (!nombre || !presupuesto || !hasMinDigits(telefono, 8)) {
+        alert('Completá nombre, un WhatsApp válido y elegí un presupuesto.');
+        return;
       }
-    }catch(_){}
-    const controller = new AbortController();
-    const t = setTimeout(()=>controller.abort(), 3500);
-    try{
-      await fetch('https://primary-production-639e.up.railway.app/webhook/goapple-leads', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(payload),
-        keepalive: true,
-        signal: controller.signal
-      });
-    }catch(_){}
-    clearTimeout(t);
-    return true;
-  }
 
-  // Navegación pasos
-  document.getElementById('next').onclick=()=>{
-    if(!requiredFilled()){
-      alert('Completá nombre, correo y WhatsApp válidos.');
-      return;
-    }
-    $s1.classList.add('hidden'); $s2.classList.remove('hidden'); $bud.focus();
-  };
-  document.getElementById('back').onclick=()=>{ $s2.classList.add('hidden'); $s1.classList.remove('hidden'); };
-  document.getElementById('cancel').onclick=()=>{ history.back(); };
+      $btn.disabled = true; $btn.textContent = 'Enviando...';
 
-  // Deep link a WhatsApp
-  function goWhatsApp(){
-    const msg = '👋 ¡Hola! Tengo un cupón de 10% de descuento';
-    const qs  = encodeURIComponent(msg);
-    const url = 'https://wa.me/5492646721845?text=' + qs;
-    // Usamos location.replace para que no puedan "volver" al paso y cambiar el presupuesto
-    location.replace(url);
-  }
+      const payload = {
+        nombre, telefono, presupuesto, modelo, ciudad, pais, califica,
+        origen: 'goapple-form',
+        timestamp: new Date().toISOString(),
+        page: location.href,
+        user_agent: navigator.userAgent
+      };
 
-  // UI para presupuesto bajo
-  function renderFinalMessage(){
-    $hdr.innerHTML = '<div class="final-wrap"><div class="final-emoji">👋</div><h2 class="final-title">¡Gracias por tu interés!</h2><p class="final-text">Por el momento no contamos con stock dentro de ese presupuesto. En breve ingresan iPhones nuevos 📲. Te voy a contactar apenas tengamos disponibilidad para que aproveches tu <strong>10% OFF</strong>.</p><span class="final-badge">Tu solicitud quedó registrada</span><div><button class="final-ok" aria-disabled="true">Entendido</button></div></div>';
-    $body.remove();
-    $note.textContent = 'Nos pondremos en contacto automáticamente ni bien haya disponibilidad.';
-  }
-
-  function disableFormForever(){
-    sessionStorage.setItem(KEY,'1');
-    sessionStorage.setItem(KEY_LOW,'1');
-    try {
-      history.pushState({blocked:true}, '');
-      window.addEventListener('popstate', ()=>{
-        if (sessionStorage.getItem(KEY_LOW) === '1') history.pushState({blocked:true}, '');
-      });
-    } catch(_) {}
-  }
-
-  // Submit
-  document.getElementById('send').onclick=async ()=>{
-    const name=($name.value||'').trim();
-    const email=($mail.value||'').trim();
-    const phone=($tel.value||'').trim();
-    const budget=($bud.value||'').trim();
-
-    if(!name || !emailOk(email) || !phoneOk(phone)){
-      alert('Completá nombre, correo y WhatsApp válidos.');
-      return;
-    }
-
-    // Evitar doble click
-    const btn=document.getElementById('send');
-    btn.disabled=true; btn.textContent='Enviando...';
-
-    // Guardar en URL local
-    const params=new URLSearchParams(location.search);
-    params.set('name',name); params.set('email',email); params.set('phone',phone); params.set('budget',budget);
-    history.replaceState({},'',location.pathname+'?'+params.toString());
-    sessionStorage.setItem(KEY,'1');
-
-    // Enviar al webhook (no bloquea)
-    const utm = collectUTMs();
-    const payload = {
-      timestamp: new Date().toISOString(),
-      name, email, phone, budget,
-      ...utm,
-      page: location.href,
-      user_agent: navigator.userAgent
-    };
-    pushToSheet(payload);
-
-    // ✅ Pixel Lead
-    try {
-      if (window.fbq) {
-        fbq('track', 'Lead', {
-          name, email, phone, budget,
-          currency: 'ARS'
+      // Enviar a Google Apps Script (si hay CORS usar mode:'no-cors' y quitar headers)
+      try {
+        await fetch(WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+          // Si ves error CORS, probá: mode: 'no-cors' y sin headers
         });
+      } catch (e) { console.warn('Webhook error:', e); }
+
+      // Disparar eventos Meta (Lead + InitiateCheckout si califica)
+      try {
+        if (window.fbq) {
+          const valueARS = estimateValue(presupuesto);
+          fbq('track','Lead',{
+            value: valueARS, currency: 'ARS',
+            content_category:'iphone', content_name:'lead_form'
+          });
+          if (presupuesto !== 'menos') {
+            fbq('track','InitiateCheckout',{
+              value: valueARS, currency: 'ARS',
+              num_items:1, content_category:'iphone', content_name:'lead_qualificado'
+            });
+          }
+        }
+      } catch(_) {}
+
+      // Ramas de negocio
+      if (presupuesto === 'menos') {
+        showFinal();
+        return;
       }
-    } catch (_) {}
 
-    if(budget==='menos'){
-      renderFinalMessage();
-      disableFormForever();
-      return;
-    }
-
-    // ✅ Para 400-600 / 700-900 / mas900 → WhatsApp directo
-    goWhatsApp();
-  };
-})();
-</script>
+      // Califica → WhatsApp directo (pequeña espera para que el Pixel despache)
+      setTimeout(()=> goWhatsApp(), 250);
+    });
+  })();
+  </script>
 </body>
 </html>

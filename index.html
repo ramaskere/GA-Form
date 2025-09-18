@@ -106,9 +106,9 @@
   }
 
   // Validaciones robustas (UNA sola barra en el HTML final)
-  const EMAIL_RE=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
-  const emailOk=v=> EMAIL_RE.test((v||'').trim()) && $mail.checkValidity();
-  const phoneOk=v=> ((v||'').match(/\\d/g) || []).length >= 8;
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailOk = (v) => EMAIL_RE.test((v || '').trim()) && document.getElementById('lf-email').checkValidity();
+const phoneOk = (v) => ((v || '').match(/\d/g) || []).length >= 8;
 
   const requiredFilled=()=> ($name.value||'').trim() && emailOk($mail.value) && phoneOk($tel.value);
 

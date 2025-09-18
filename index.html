@@ -24,16 +24,24 @@
   .btn.primary{ background:var(--accent); color:#fff; border-color:var(--accent); } .btn:hover{ filter:brightness(.98); }
   .hidden{ display:none !important; } 
   footer.note{ padding:0 18px 18px; color:#6e6e73; font-size:12.5px; text-align:center; }
+
+  /* Mensaje final */
+  .final-wrap{ padding:26px 22px 28px; text-align:center; }
+  .final-emoji{ font-size:42px; }
+  .final-title{ margin:10px 0 6px; font-size:22px; font-weight:800; }
+  .final-text{ margin:0 auto; max-width:520px; color:#424245; font-size:15px; line-height:1.45; }
+  .final-badge{ display:inline-block; margin-top:14px; padding:6px 12px; border-radius:999px; background:#eff6ff; color:#1e40af; font-weight:700; font-size:12.5px; border:1px solid #dbeafe; }
+  .final-ok{ margin-top:16px; padding:10px 16px; border-radius:999px; border:1px solid #cfd2d8; background:#fff; font-weight:700; cursor:default; color:#1d1d1f; }
 </style>
 </head>
 <body>
 <main class="card" role="dialog" aria-modal="true" aria-labelledby="form-title">
-  <header>
+  <header id="hdr">
     <h1 id="form-title">🔥 Ganá 10% de Descuento 🔥</h1>
-    <p class="lead">Completá el formulario y accedé a un <strong>10% OFF</strong> en tu próximo iPhone.</p>
+    <p class="lead" id="form-lead">Completá el formulario y accedé a un <strong>10% OFF</strong> en tu próximo iPhone.</p>
   </header>
 
-  <section class="form-body">
+  <section class="form-body" id="form-body">
     <!-- Paso 1 -->
     <div id="step1" class="row">
       <div>
@@ -72,20 +80,35 @@
     </div>
   </section>
 
-  <footer class="note">Completando el formulario obtenés tu beneficio del 10% OFF.</footer>
+  <footer class="note" id="note">Completando el formulario obtenés tu beneficio del 10% OFF.</footer>
 </main>
 
 <script>
 (function(){
   const KEY='lead_form_done_v1';
-  const $s1=document.getElementById('step1'), $s2=document.getElementById('step2');
-  const $name=document.getElementById('lf-name'), $mail=document.getElementById('lf-email');
-  const $tel=document.getElementById('lf-phone'), $bud=document.getElementById('lf-budget');
+  const KEY_LOW='lead_low_budget_v1';
+
+  const $card=document.querySelector('main.card');
+  const $hdr=document.getElementById('hdr');
+  const $body=document.getElementById('form-body');
+  const $note=document.getElementById('note');
+
+  const $s1=document.getElementById('step1');
+  const $s2=document.getElementById('step2');
+  const $name=document.getElementById('lf-name');
+  const $mail=document.getElementById('lf-email');
+  const $tel=document.getElementById('lf-phone');
+  const $bud=document.getElementById('lf-budget');
+
+  // Si ya declaró presupuesto "menos", mostrar mensaje final y bloquear form
+  if (sessionStorage.getItem(KEY_LOW) === '1') {
+    renderFinalMessage();
+    disableFormForever();
+  }
 
   const EMAIL_RE=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
   const emailOk=v=> EMAIL_RE.test((v||'').trim()) && $mail.checkValidity();
   const phoneOk=v=> ((v||'').match(/\\d/g) || []).length >= 8;
-
   const requiredFilled=()=> ($name.value||'').trim() && emailOk($mail.value) && phoneOk($tel.value);
 
   document.getElementById('next').onclick=()=>{
@@ -111,6 +134,29 @@
     window.location.href = target.toString();
   }
 
+  function renderFinalMessage(){
+    // Reemplazamos el contenido por un mensaje final sin opciones de volver
+    $hdr.innerHTML = '<div class="final-wrap"><div class="final-emoji">👋</div><h2 class="final-title">¡Gracias por tu interés!</h2><p class="final-text">Por el momento no contamos con stock dentro de ese presupuesto. En breve ingresan iPhones nuevos 📲. Te voy a contactar apenas tengamos disponibilidad para que aproveches tu <strong>10% OFF</strong>.</p><span class="final-badge">Tu solicitud quedó registrada</span><div><button class="final-ok" aria-disabled="true">Entendido</button></div></div>';
+    $body.remove(); // eliminamos el formulario completo
+    $note.textContent = 'Nos pondremos en contacto automáticamente ni bien haya disponibilidad.';
+  }
+
+  function disableFormForever(){
+    // Bloqueamos cualquier interacción y evitamos que reabran pasos
+    sessionStorage.setItem(KEY,'1');
+    sessionStorage.setItem(KEY_LOW,'1');
+
+    // Evitar que el usuario "vuelva" y cambie presupuesto en esta sesión
+    try {
+      history.pushState({blocked:true}, '');
+      window.addEventListener('popstate', (e)=>{
+        if (sessionStorage.getItem(KEY_LOW) === '1') {
+          history.pushState({blocked:true}, '');
+        }
+      });
+    } catch(_) {}
+  }
+
   document.getElementById('send').onclick=()=>{
     const budget=$bud.value;
 
@@ -123,6 +169,13 @@
     sessionStorage.setItem(KEY,'1');
 
     try{ if(window.fbq){ fbq('track','Lead',{ value: budget, currency:'ARS' }); } }catch(_){}
+
+    if(budget==='menos'){
+      // Mostrar mensaje final y bloquear regresar a cambiar el presupuesto
+      renderFinalMessage();
+      disableFormForever();
+      return;
+    }
 
     if(budget==='400-600' || budget==='700-900' || budget==='mas900'){
       goCatalog();

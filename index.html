@@ -107,10 +107,10 @@
   const $tel = document.getElementById('lf-phone');
   const $bud = document.getElementById('lf-budget');
 
-  // Regex correctos (un solo backslash en el HTML final)
-  const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+  // ✅ UNA sola barra en el HTML final:
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   function emailOk(v){ return EMAIL_RE.test((v||'').trim()); }
-  function phoneOk(v){ return ((v||'').match(/\\d/g) || []).length >= 8; }
+  function phoneOk(v){ return ((v||'').match(/\d/g) || []).length >= 8; }
 
   function requiredFilled(){
     return ($name.value||'').trim() && emailOk($mail.value) && phoneOk($tel.value);
@@ -142,7 +142,7 @@
 
     try{ if(window.fbq){ fbq('track','Lead', { value: budget, currency:'ARS' }); } }catch(_){}
 
-    const REDIRECT_URL = 'https://tu-dominio.com/catalogo'; // cámbiala por tu URL real
+    const REDIRECT_URL = 'https://tu-dominio.com/catalogo';
     if(budget === '400-600' || budget === '700-900' || budget === 'mas900'){
       window.location.href = REDIRECT_URL;
     } else {

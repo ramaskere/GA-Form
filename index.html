@@ -110,6 +110,11 @@
   const $tel = document.getElementById('lf-phone');
   const $bud = document.getElementById('lf-budget');
 
+  // Si ya lo completó en esta sesión, no hacemos nada (podés quitar esto si querés que siempre aparezca)
+  if(sessionStorage.getItem(KEY)){
+    // opcional: redirigir a otra página o simplemente dejar visible
+  }
+
   // Validaciones básicas
   function emailOk(v){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((v||'').trim()); }
   function requiredFilled(){
@@ -139,9 +144,10 @@
     history.replaceState({}, '', newUrl);
     sessionStorage.setItem(KEY, '1');
 
-    // Si tu página ya tiene Pixel cargado, dispara Lead
+    // Si tu página madre ya tiene Pixel cargado, dispara Lead
     try{ if(window.fbq){ fbq('track','Lead', { value: budget? Number(budget):0, currency:'ARS' }); } }catch(_){}
 
+    // Opcional: redirigir al catálogo o cerrar modal si lo embebés en popup
     alert('¡Gracias! Tus datos fueron guardados.');
   };
 })();

@@ -77,7 +77,7 @@
     <!-- Paso 2 -->
     <div id="step2" class="row hidden">
       <div>
-        <label for="lf-budget">¿Cuál es tu presupuesto (ARS)?</label>
+        <label for="lf-budget">¿Cuál es tu inversión (ARS)?</label>
         <select id="lf-budget">
           <option value="menos">Menos de $300.000</option>
           <option value="400-600">$400.000 a $600.000</option>
@@ -107,13 +107,23 @@
   const $tel = document.getElementById('lf-phone');
   const $bud = document.getElementById('lf-budget');
 
-  function emailOk(v){ return /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test((v||'').trim()); }
-  function requiredFilled(){ return ($name.value||'').trim() && emailOk($mail.value) && ($tel.value||'').trim(); }
+  // Regex correctos (un solo backslash en el HTML final)
+  const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+  function emailOk(v){ return EMAIL_RE.test((v||'').trim()); }
+  function phoneOk(v){ return ((v||'').match(/\\d/g) || []).length >= 8; }
+
+  function requiredFilled(){
+    return ($name.value||'').trim() && emailOk($mail.value) && phoneOk($tel.value);
+  }
 
   document.getElementById('next').onclick = ()=>{
-    if(!requiredFilled()){ alert('Completá nombre, correo y WhatsApp válidos.'); return; }
+    if(!requiredFilled()){
+      alert('Completá nombre, correo y WhatsApp válidos.');
+      return;
+    }
     $s1.classList.add('hidden'); $s2.classList.remove('hidden'); $bud.focus();
   };
+
   document.getElementById('back').onclick   = ()=>{ $s2.classList.add('hidden'); $s1.classList.remove('hidden'); };
   document.getElementById('cancel').onclick = ()=>{ history.back(); };
 
@@ -132,7 +142,7 @@
 
     try{ if(window.fbq){ fbq('track','Lead', { value: budget, currency:'ARS' }); } }catch(_){}
 
-    const REDIRECT_URL = 'https://tu-dominio.com/catalogo'; // <--- CAMBIA por tu URL real
+    const REDIRECT_URL = 'https://tu-dominio.com/catalogo'; // cámbiala por tu URL real
     if(budget === '400-600' || budget === '700-900' || budget === 'mas900'){
       window.location.href = REDIRECT_URL;
     } else {

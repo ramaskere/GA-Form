@@ -88,7 +88,6 @@
   const KEY='lead_form_done_v1';
   const KEY_LOW='lead_low_budget_v1';
 
-  const $card=document.querySelector('main.card');
   const $hdr=document.getElementById('hdr');
   const $body=document.getElementById('form-body');
   const $note=document.getElementById('note');
@@ -100,15 +99,16 @@
   const $tel=document.getElementById('lf-phone');
   const $bud=document.getElementById('lf-budget');
 
-  // Si ya declaró presupuesto "menos", mostrar mensaje final y bloquear form
+  // Si ya quedó marcado presupuesto bajo en esta sesión, mostrar mensaje final
   if (sessionStorage.getItem(KEY_LOW) === '1') {
     renderFinalMessage();
     disableFormForever();
   }
 
-  const EMAIL_RE=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+  // ✅ Barras simples en el HTML final
+  const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const emailOk=v=> EMAIL_RE.test((v||'').trim()) && $mail.checkValidity();
-  const phoneOk=v=> ((v||'').match(/\\d/g) || []).length >= 8;
+  const phoneOk=v=> ((v||'').match(/\d/g) || []).length >= 8;
   const requiredFilled=()=> ($name.value||'').trim() && emailOk($mail.value) && phoneOk($tel.value);
 
   document.getElementById('next').onclick=()=>{
@@ -135,24 +135,18 @@
   }
 
   function renderFinalMessage(){
-    // Reemplazamos el contenido por un mensaje final sin opciones de volver
     $hdr.innerHTML = '<div class="final-wrap"><div class="final-emoji">👋</div><h2 class="final-title">¡Gracias por tu interés!</h2><p class="final-text">Por el momento no contamos con stock dentro de ese presupuesto. En breve ingresan iPhones nuevos 📲. Te voy a contactar apenas tengamos disponibilidad para que aproveches tu <strong>10% OFF</strong>.</p><span class="final-badge">Tu solicitud quedó registrada</span><div><button class="final-ok" aria-disabled="true">Entendido</button></div></div>';
-    $body.remove(); // eliminamos el formulario completo
+    $body.remove();
     $note.textContent = 'Nos pondremos en contacto automáticamente ni bien haya disponibilidad.';
   }
 
   function disableFormForever(){
-    // Bloqueamos cualquier interacción y evitamos que reabran pasos
     sessionStorage.setItem(KEY,'1');
     sessionStorage.setItem(KEY_LOW,'1');
-
-    // Evitar que el usuario "vuelva" y cambie presupuesto en esta sesión
     try {
       history.pushState({blocked:true}, '');
-      window.addEventListener('popstate', (e)=>{
-        if (sessionStorage.getItem(KEY_LOW) === '1') {
-          history.pushState({blocked:true}, '');
-        }
+      window.addEventListener('popstate', ()=>{
+        if (sessionStorage.getItem(KEY_LOW) === '1') history.pushState({blocked:true}, '');
       });
     } catch(_) {}
   }
@@ -171,7 +165,6 @@
     try{ if(window.fbq){ fbq('track','Lead',{ value: budget, currency:'ARS' }); } }catch(_){}
 
     if(budget==='menos'){
-      // Mostrar mensaje final y bloquear regresar a cambiar el presupuesto
       renderFinalMessage();
       disableFormForever();
       return;

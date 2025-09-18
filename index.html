@@ -5,45 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>GO APPLE — Formulario</title>
 <style>
-  :root{
-    --bg:#ffffff; --surface:#ffffff; --line:#e6e6e9; --ink:#1d1d1f; --muted:#6e6e73; --accent:#0071e3; --radius:16px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; background:linear-gradient(180deg,#f7f8fb, #eef1f6);
-    color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    display:grid; place-items:center;
-    padding:18px;
-  }
-  .card{
-    width:min(640px, 94vw);
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    box-shadow:0 20px 60px rgba(0,0,0,.10);
-    overflow:hidden;
-  }
+  :root{ --bg:#ffffff; --surface:#ffffff; --line:#e6e6e9; --ink:#1d1d1f; --muted:#6e6e73; --accent:#0071e3; --radius:16px; }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{ margin:0; background:linear-gradient(180deg,#f7f8fb,#eef1f6); color:var(--ink);
+        font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+        display:grid; place-items:center; padding:18px; }
+  .card{ width:min(640px,94vw); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+         box-shadow:0 20px 60px rgba(0,0,0,.10); overflow:hidden; }
   header{ padding:20px 22px 0; text-align:center; }
-  h1{ margin:0; font-size:24px; font-weight:800; }
-  p.lead{ margin:8px 0 16px; color:#424245; font-size:15px; }
-  .form-body{ padding:18px; display:grid; gap:14px; }
-  .row{ display:grid; gap:10px; }
+  h1{ margin:0; font-size:24px; font-weight:800; } p.lead{ margin:8px 0 16px; color:#424245; font-size:15px; }
+  .form-body{ padding:18px; display:grid; gap:14px; } .row{ display:grid; gap:10px; }
   label{ font-size:13px; color:#424245; font-weight:600; }
-  input, select{
-    width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line);
-    background:#fafafa; font-size:14px; outline:none;
-  }
+  input,select{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fafafa; font-size:14px; outline:none; }
   .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:4px; }
-  .btn{
-    appearance:none; padding:11px 16px; border-radius:999px; font-weight:700; cursor:pointer;
-    border:1px solid #cfd2d8; background:#fff;
-  }
-  .btn.primary{ background:var(--accent); color:#fff; border-color:var(--accent); }
-  .btn:hover{ filter:brightness(.98); }
-  .hidden{ display:none !important; }
-  footer.note{ padding:0 18px 18px; color:#6e6e73; font-size:12.5px; text-align:center; }
+  .btn{ appearance:none; padding:11px 16px; border-radius:999px; font-weight:700; cursor:pointer; border:1px solid #cfd2d8; background:#fff; }
+  .btn.primary{ background:var(--accent); color:#fff; border-color:var(--accent); } .btn:hover{ filter:brightness(.98); }
+  .hidden{ display:none !important; } footer.note{ padding:0 18px 18px; color:#6e6e73; font-size:12.5px; text-align:center; }
 </style>
 </head>
 <body>
@@ -92,59 +69,48 @@
     </div>
   </section>
 
-  <footer class="note">
-    Completar el formulario mejora tus recomendaciones y tiempos de respuesta.
-  </footer>
+  <footer class="note">Completar el formulario mejora tus recomendaciones y tiempos de respuesta.</footer>
 </main>
 
 <script>
 (function(){
-  const KEY = 'lead_form_done_v1';
-  const $s1  = document.getElementById('step1');
-  const $s2  = document.getElementById('step2');
-  const $name= document.getElementById('lf-name');
-  const $mail= document.getElementById('lf-email');
-  const $tel = document.getElementById('lf-phone');
-  const $bud = document.getElementById('lf-budget');
+  const KEY='lead_form_done_v1';
+  const $s1=document.getElementById('step1'), $s2=document.getElementById('step2');
+  const $name=document.getElementById('lf-name'), $mail=document.getElementById('lf-email');
+  const $tel=document.getElementById('lf-phone'), $bud=document.getElementById('lf-budget');
 
-  // ✅ UNA sola barra en el HTML final:
-  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  function emailOk(v){ return EMAIL_RE.test((v||'').trim()); }
-  function phoneOk(v){ return ((v||'').match(/\d/g) || []).length >= 8; }
+  const EMAIL_RE=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+  const phoneOk=v=>((v||'').match(/\\d/g)||[]).length>=8;
+  const emailOk=v=>EMAIL_RE.test((v||'').trim());
+  const requiredFilled=()=>($name.value||'').trim()&&emailOk($mail.value)&&phoneOk($tel.value);
 
-  function requiredFilled(){
-    return ($name.value||'').trim() && emailOk($mail.value) && phoneOk($tel.value);
-  }
-
-  document.getElementById('next').onclick = ()=>{
-    if(!requiredFilled()){
-      alert('Completá nombre, correo y WhatsApp válidos.');
-      return;
-    }
+  document.getElementById('next').onclick=()=>{
+    if(!requiredFilled()){ alert('Completá nombre, correo y WhatsApp válidos.'); return; }
     $s1.classList.add('hidden'); $s2.classList.remove('hidden'); $bud.focus();
   };
+  document.getElementById('back').onclick=()=>{ $s2.classList.add('hidden'); $s1.classList.remove('hidden'); };
+  document.getElementById('cancel').onclick=()=>{ history.back(); };
 
-  document.getElementById('back').onclick   = ()=>{ $s2.classList.add('hidden'); $s1.classList.remove('hidden'); };
-  document.getElementById('cancel').onclick = ()=>{ history.back(); };
+  function safeRedirect(){
+    const target = new URL('/', 'https://goapple-catalogo.vercel.app');
+    window.location.href = target.toString();
+  }
 
-  document.getElementById('send').onclick = ()=>{
-    const budget = $bud.value;
+  document.getElementById('send').onclick=()=>{
+    const budget=$bud.value;
 
-    const params = new URLSearchParams(location.search);
-    params.set('name',  ($name.value||'').trim());
-    params.set('email', ($mail.value||'').trim());
-    params.set('phone', ($tel.value||'').trim());
-    params.set('budget', budget);
+    const params=new URLSearchParams(location.search);
+    params.set('name',($name.value||'').trim());
+    params.set('email',($mail.value||'').trim());
+    params.set('phone',($tel.value||'').trim());
+    params.set('budget',budget);
+    history.replaceState({},'',location.pathname+'?'+params.toString());
+    sessionStorage.setItem(KEY,'1');
 
-    const newUrl = location.pathname + '?' + params.toString();
-    history.replaceState({}, '', newUrl);
-    sessionStorage.setItem(KEY, '1');
+    try{ if(window.fbq){ fbq('track','Lead',{ value: budget, currency:'ARS' }); } }catch(_){}
 
-    try{ if(window.fbq){ fbq('track','Lead', { value: budget, currency:'ARS' }); } }catch(_){}
-
-    const REDIRECT_URL = 'https://tu-dominio.com/catalogo';
-    if(budget === '400-600' || budget === '700-900' || budget === 'mas900'){
-      window.location.href = REDIRECT_URL;
+    if(budget==='400-600' || budget==='700-900' || budget==='mas900'){
+      safeRedirect();
     } else {
       alert('¡Gracias! Tus datos fueron guardados.');
     }

@@ -111,11 +111,11 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
 
   if (sessionStorage.getItem(KEY_LOW) === '1') { renderFinalMessage(); disableFormForever(); }
 
-  // ===== VALIDACIONES =====
-  const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/i;
+  // ===== VALIDACIONES (OJO: una sola barra \ en las regex) =====
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
   const emailOk  = (v)=> EMAIL_RE.test(String(v||'').trim().toLowerCase());
-  const digits   = (v)=> String(v||'').replace(/[^\\d]/g,'');     // quita +, espacios, guiones
-  const phoneOk  = (v)=> digits(v).length >= 6;                   // móvil-friendly
+  const digits   = (v)=> String(v||'').replace(/[^\d]/g,''); // quita +, espacios, guiones
+  const phoneOk  = (v)=> digits(v).length >= 6;             // móvil-friendly
   const nameOk   = (v)=> String(v||'').trim().length >= 2;
 
   // ===== UTM =====
@@ -160,17 +160,15 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
 
   // ===== SUBMIT =====
   document.getElementById('send').onclick=async ()=>{
-    const name = String($name.value||'').trim();
-    const email= String($mail.value||'').trim();
-    const phone= String($tel.value||'').trim();
-    const budget=($bud.value||'').trim();
+    const name  = String($name.value||'').trim();
+    const email = String($mail.value||'').trim();
+    const phone = String($tel.value||'').trim();
+    const budget= ($bud.value||'').trim();
 
-    // Validación final (incluye WhatsApp)
     if(!nameOk(name) || !emailOk(email) || !phoneOk(phone)){
       alert('Completá nombre, correo y WhatsApp válidos.'); return;
     }
 
-    // Persistimos en URL y armamos payloads
     const params=new URLSearchParams(location.search);
     params.set('name',name); params.set('email',email); params.set('phone',phone); params.set('budget',budget);
     history.replaceState({},'',location.pathname+'?'+params.toString());
@@ -180,19 +178,14 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
     const fullPayload = { timestamp:new Date().toISOString(), name, email, phone, budget, ...utm, page:location.href, user_agent:navigator.userAgent };
     const minPayload  = { nombre:name, telefono:phone, presupuesto:budget, modelo:'', ciudad:'', pais:'', califica:'', origen:'goapple-form' };
 
-    // Enviar (Railway + GAS) y dar tiempo en móvil
     pushRailway(fullPayload);
     pushGAS(minPayload);
 
-    // Meta pixel (si está)
     try{ if(window.fbq){ fbq('track','Lead',{ value: budget==='400-600'?500000 : budget==='700-900'?800000 : budget==='mas900'?1000000:0, currency:'ARS' }); } }catch(_){}
 
     if(budget==='menos'){ renderFinalMessage(); disableFormForever(); return; }
 
-    // Espera corta para que los beacons salgan en móvil
     await new Promise(r=>setTimeout(r, 800));
-
-    // Redirigir a WhatsApp
     const msg='👋 ¡Hola! Tengo un cupón de 10% de descuento';
     location.replace('https://wa.me/5492646721845?text='+encodeURIComponent(msg));
   };

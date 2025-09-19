@@ -117,7 +117,7 @@ fbq('init','650415544428771'); fbq('track','PageView');
     disableFormForever();
   }
 
-  // ✅ REGEX con UNA sola barra (esta es la raíz del problema que veías)
+  // Regex correctas
   const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const emailOk=v=> EMAIL_RE.test((v||'').trim()) && $mail.checkValidity();
   const phoneOk=v=> ((v||'').match(/\d/g) || []).length >= 8;
@@ -144,7 +144,7 @@ fbq('init','650415544428771'); fbq('track','PageView');
 
   async function pushToGAS(payload){
     try{
-      await fetch('https://script.google.com/macros/s/XXXXXXXX/exec', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      await fetch('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     }catch(_){}
   }
 
@@ -172,7 +172,7 @@ fbq('init','650415544428771'); fbq('track','PageView');
     try { history.pushState({blocked:true}, ''); window.addEventListener('popstate', ()=> history.pushState({blocked:true}, '')); } catch(_){}
   }
 
-  // ✅ Un solo submit para todo
+  // Un solo submit para todo
   document.getElementById('leadForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
 

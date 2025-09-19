@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>GO APPLE — Formulario</title>
 
-<!-- Meta Pixel (opcional: cambia TU_PIXEL_ID) -->
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -51,7 +50,6 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
   </header>
 
   <section class="form-body" id="form-body">
-    <!-- Paso 1 -->
     <div id="step1" class="row">
       <div>
         <label for="lf-name">Nombre</label>
@@ -59,7 +57,6 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
       </div>
       <div>
         <label for="lf-email">Correo</label>
-        <!-- sin required nativo -->
         <input id="lf-email" type="email" placeholder="tu@email.com" autocomplete="email" />
       </div>
       <div>
@@ -72,7 +69,6 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
       </div>
     </div>
 
-    <!-- Paso 2 -->
     <div id="step2" class="row hidden">
       <div>
         <label for="lf-budget">¿Cuál es tu inversión (ARS)?</label>
@@ -111,17 +107,15 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
 
   if (sessionStorage.getItem(KEY_LOW) === '1') { renderFinalMessage(); disableFormForever(); }
 
-  // ===== VALIDACIONES (una sola barra en \s y \d) =====
-  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+  // Validaciones (una sola barra en \s y \d)
+  const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/i;
   const emailOk  = (v)=> EMAIL_RE.test(String(v||'').trim().toLowerCase());
-  const digits   = (v)=> String(v||'').replace(/[^\d]/g,''); // quita +, espacios, guiones
-  const phoneOk  = (v)=> digits(v).length >= 6;             // móvil-friendly
+  const digits   = (v)=> String(v||'').replace(/[^\\d]/g,'');
+  const phoneOk  = (v)=> digits(v).length >= 6;
   const nameOk   = (v)=> String(v||'').trim().length >= 2;
 
-  // ===== UTM =====
   function collectUTMs(){ const q=new URLSearchParams(location.search); return {utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||''}; }
 
-  // ===== Fetch con timeout y confirmación =====
   async function postJSON(url, body, {timeout=6000, corsMode}={}){
     const ctrl = new AbortController();
     const id = setTimeout(()=>ctrl.abort(), timeout);
@@ -135,7 +129,6 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
         signal: ctrl.signal,
       });
       clearTimeout(id);
-      // en no-cors no hay .ok legible; asumimos true si no explota
       return corsMode==='no-cors' ? true : !!res.ok;
     }catch(_){
       clearTimeout(id);
@@ -143,7 +136,6 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
     }
   }
 
-  // ===== NAVEGACIÓN =====
   document.getElementById('next').onclick=()=>{
     if(!nameOk($name.value) || !emailOk($mail.value)){
       alert('Completá nombre y correo válidos.');
@@ -154,14 +146,12 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
   document.getElementById('back').onclick=()=>{ $s2.classList.add('hidden'); $s1.classList.remove('hidden'); };
   document.getElementById('cancel').onclick=()=>{ history.back(); };
 
-  // ===== UI helpers =====
   function renderFinalMessage(){
     $hdr.innerHTML='<div class="final-wrap"><div class="final-emoji">👋</div><h2 class="final-title">¡Gracias por tu interés!</h2><p class="final-text">Por el momento no contamos con stock dentro de ese presupuesto. En breve ingresan iPhones nuevos 📲. Te voy a contactar apenas tengamos disponibilidad para que aproveches tu <strong>10% OFF</strong>.</p><span class="final-badge">Tu solicitud quedó registrada</span><div><button class="final-ok" aria-disabled="true">Entendido</button></div></div>';
     $body.remove(); $note.textContent='Nos pondremos en contacto automáticamente ni bien haya disponibilidad.';
   }
   function disableFormForever(){ sessionStorage.setItem(KEY,'1'); sessionStorage.setItem(KEY_LOW,'1'); try{ history.pushState({blocked:true}, ''); window.addEventListener('popstate',()=>history.pushState({blocked:true}, '')); }catch(_){} }
 
-  // ===== SUBMIT =====
   document.getElementById('send').onclick=async ()=>{
     const name  = String($name.value||'').trim();
     const email = String($mail.value||'').trim();
@@ -172,33 +162,35 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
       alert('Completá nombre, correo y WhatsApp válidos.'); return;
     }
 
-    // Persistimos en URL
     const params=new URLSearchParams(location.search);
     params.set('name',name); params.set('email',email); params.set('phone',phone); params.set('budget',budget);
     history.replaceState({},'',location.pathname+'?'+params.toString());
     sessionStorage.setItem(KEY,'1');
 
-    // Payloads
     const utm = collectUTMs();
     const fullPayload = { timestamp:new Date().toISOString(), name, email, phone, budget, ...utm, page:location.href, user_agent:navigator.userAgent };
     const minPayload  = { nombre:name, telefono:phone, presupuesto:budget, modelo:'', ciudad:'', pais:'', califica:'', origen:'goapple-form' };
 
-    // 1) Enviar a Railway y ESPERAR confirmación real
-    const okRail = await postJSON('https://primary-production-639e.up.railway.app/webhook/goapple-leads', fullPayload, {timeout:7000});
-    // 2) Enviar a Google Apps Script (no-cors; no bloquea)
+    // 1) Intento de confirmación real a Railway
+    let okRail = await postJSON('https://primary-production-639e.up.railway.app/webhook/goapple-leads', fullPayload, {timeout:7000});
+    // 1.b) Si falla (iOS/CORS), hago fallback a sendBeacon y NO freno el flujo
+    if (!okRail && navigator.sendBeacon) {
+      try { navigator.sendBeacon('https://primary-production-639e.up.railway.app/webhook/goapple-leads', new Blob([JSON.stringify(fullPayload)], {type:'application/json'})); } catch(_) {}
+      okRail = true; // seguimos igual
+    }
+
+    // 2) Envío a Google Apps Script en paralelo (no-cors, no bloquea)
     postJSON('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', minPayload, {timeout:7000, corsMode:'no-cors'});
 
-    // Pixel (Lead)
+    // Pixel Lead
     try{ if(window.fbq){ fbq('track','Lead',{ value: budget==='400-600'?500000 : budget==='700-900'?800000 : budget==='mas900'?1000000:0, currency:'ARS' }); } }catch(_){}
 
     if(budget==='menos'){ renderFinalMessage(); disableFormForever(); return; }
 
-    if(!okRail){
-      alert('Hubo un problema al enviar tus datos. Probá nuevamente.'); 
-      return;
-    }
+    // Pequeña espera para que los beacons salgan en móvil
+    await new Promise(r=>setTimeout(r, 700));
 
-    // Redirigir a WhatsApp solo después de confirmar webhook
+    // Abrir WhatsApp
     const msg='👋 ¡Hola! Tengo un cupón de 10% de descuento';
     location.replace('https://wa.me/5492646721845?text='+encodeURIComponent(msg));
   };

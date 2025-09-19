@@ -111,7 +111,7 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
 
   if (sessionStorage.getItem(KEY_LOW) === '1') { renderFinalMessage(); disableFormForever(); }
 
-  // ===== VALIDACIONES (OJO: una sola barra \ en las regex) =====
+  // ===== VALIDACIONES (una sola barra en \s y \d) =====
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
   const emailOk  = (v)=> EMAIL_RE.test(String(v||'').trim().toLowerCase());
   const digits   = (v)=> String(v||'').replace(/[^\d]/g,''); // quita +, espacios, guiones
@@ -121,23 +121,26 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
   // ===== UTM =====
   function collectUTMs(){ const q=new URLSearchParams(location.search); return {utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||''}; }
 
-  // ===== ENVIOS =====
-  function pushRailway(payload){
+  // ===== Fetch con timeout y confirmación =====
+  async function postJSON(url, body, {timeout=6000, corsMode}={}){
+    const ctrl = new AbortController();
+    const id = setTimeout(()=>ctrl.abort(), timeout);
     try{
-      if(navigator.sendBeacon){
-        const ok=navigator.sendBeacon('https://primary-production-639e.up.railway.app/webhook/goapple-leads', new Blob([JSON.stringify(payload)],{type:'application/json'}));
-        if(ok) return;
-      }
-    }catch(_){}
-    fetch('https://primary-production-639e.up.railway.app/webhook/goapple-leads', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), keepalive:true}).catch(()=>{});
-  }
-
-  function pushGAS(minPayload){
-    try{
-      const blob=new Blob([JSON.stringify(minPayload)], {type:'text/plain;charset=utf-8'});
-      if(navigator.sendBeacon){ navigator.sendBeacon('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', blob); return; }
-      fetch('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', {method:'POST', mode:'no-cors', body:blob, keepalive:true}).catch(()=>{});
-    }catch(_){}
+      const res = await fetch(url, {
+        method:'POST',
+        headers: corsMode==='no-cors' ? undefined : {'Content-Type':'application/json'},
+        body: corsMode==='no-cors' ? new Blob([JSON.stringify(body)], {type:'text/plain;charset=utf-8'}) : JSON.stringify(body),
+        mode: corsMode || 'cors',
+        keepalive: true,
+        signal: ctrl.signal,
+      });
+      clearTimeout(id);
+      // en no-cors no hay .ok legible; asumimos true si no explota
+      return corsMode==='no-cors' ? true : !!res.ok;
+    }catch(_){
+      clearTimeout(id);
+      return false;
+    }
   }
 
   // ===== NAVEGACIÓN =====
@@ -169,23 +172,33 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
       alert('Completá nombre, correo y WhatsApp válidos.'); return;
     }
 
+    // Persistimos en URL
     const params=new URLSearchParams(location.search);
     params.set('name',name); params.set('email',email); params.set('phone',phone); params.set('budget',budget);
     history.replaceState({},'',location.pathname+'?'+params.toString());
     sessionStorage.setItem(KEY,'1');
 
+    // Payloads
     const utm = collectUTMs();
     const fullPayload = { timestamp:new Date().toISOString(), name, email, phone, budget, ...utm, page:location.href, user_agent:navigator.userAgent };
     const minPayload  = { nombre:name, telefono:phone, presupuesto:budget, modelo:'', ciudad:'', pais:'', califica:'', origen:'goapple-form' };
 
-    pushRailway(fullPayload);
-    pushGAS(minPayload);
+    // 1) Enviar a Railway y ESPERAR confirmación real
+    const okRail = await postJSON('https://primary-production-639e.up.railway.app/webhook/goapple-leads', fullPayload, {timeout:7000});
+    // 2) Enviar a Google Apps Script (no-cors; no bloquea)
+    postJSON('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', minPayload, {timeout:7000, corsMode:'no-cors'});
 
+    // Pixel (Lead)
     try{ if(window.fbq){ fbq('track','Lead',{ value: budget==='400-600'?500000 : budget==='700-900'?800000 : budget==='mas900'?1000000:0, currency:'ARS' }); } }catch(_){}
 
     if(budget==='menos'){ renderFinalMessage(); disableFormForever(); return; }
 
-    await new Promise(r=>setTimeout(r, 800));
+    if(!okRail){
+      alert('Hubo un problema al enviar tus datos. Probá nuevamente.'); 
+      return;
+    }
+
+    // Redirigir a WhatsApp solo después de confirmar webhook
     const msg='👋 ¡Hola! Tengo un cupón de 10% de descuento';
     location.replace('https://wa.me/5492646721845?text='+encodeURIComponent(msg));
   };

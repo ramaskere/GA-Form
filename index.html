@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>GO APPLE — Formulario</title>
 
-<!-- ✅ Meta Pixel Code (reemplaza TU_PIXEL_ID si corresponde) -->
+<!-- Meta Pixel (opcional: cambia TU_PIXEL_ID) -->
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -14,7 +14,6 @@ t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,do
 fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=TU_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
-<!-- ✅ End Meta Pixel Code -->
 
 <style>
   :root{ --bg:#ffffff; --surface:#ffffff; --line:#e6e6e9; --ink:#1d1d1f; --muted:#6e6e73; --accent:#0071e3; --radius:16px; }
@@ -30,14 +29,12 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
   .form-body{ padding:18px; display:grid; gap:14px; } .row{ display:grid; gap:10px; }
   label{ font-size:13px; color:#424245; font-weight:600; }
   input,select{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fafafa; font-size:14px; outline:none; }
-  input[type="email"]:invalid{ border-color:#ffb4b4; }
   .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:4px; }
   .btn{ appearance:none; padding:11px 16px; border-radius:999px; font-weight:700; cursor:pointer; border:1px solid #cfd2d8; background:#fff; }
   .btn.primary{ background:var(--accent); color:#fff; border-color:var(--accent); } .btn:hover{ filter:brightness(.98); }
   .hidden{ display:none !important; } 
   footer.note{ padding:0 18px 18px; color:#6e6e73; font-size:12.5px; text-align:center; }
 
-  /* Mensaje final (cuando elijan "< 300k") */
   .final-wrap{ padding:26px 22px 28px; text-align:center; }
   .final-emoji{ font-size:42px; }
   .final-title{ margin:10px 0 6px; font-size:22px; font-weight:800; }
@@ -62,7 +59,8 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
       </div>
       <div>
         <label for="lf-email">Correo</label>
-        <input id="lf-email" type="email" placeholder="tu@email.com" autocomplete="email" required />
+        <!-- sin required nativo -->
+        <input id="lf-email" type="email" placeholder="tu@email.com" autocomplete="email" />
       </div>
       <div>
         <label for="lf-phone">WhatsApp</label>
@@ -111,62 +109,41 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
   const $tel=document.getElementById('lf-phone');
   const $bud=document.getElementById('lf-budget');
 
-  // Si ya quedó marcado presupuesto bajo en esta sesión, mostrar mensaje final
-  if (sessionStorage.getItem(KEY_LOW) === '1') {
-    renderFinalMessage();
-    disableFormForever();
-  }
+  if (sessionStorage.getItem(KEY_LOW) === '1') { renderFinalMessage(); disableFormForever(); }
 
-  // ✅ Validaciones más flexibles
+  // ===== VALIDACIONES =====
   const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/i;
-  const emailOk = (v) => {
-    const s = (v || '').trim().toLowerCase();
-    return EMAIL_RE.test(s);
-  };
-  const phoneDigits = (v) => String(v || '').replace(/[^\\d]/g, '');
-  const phoneOk     = (v) => phoneDigits(v).length >= 8;
-  const requiredFilled = () => {
-    const n = String($name.value || '').trim();
-    return n.length >= 2 && emailOk($mail.value) && phoneOk($tel.value);
-  };
+  const emailOk  = (v)=> EMAIL_RE.test(String(v||'').trim().toLowerCase());
+  const digits   = (v)=> String(v||'').replace(/[^\\d]/g,'');     // quita +, espacios, guiones
+  const phoneOk  = (v)=> digits(v).length >= 6;                   // móvil-friendly
+  const nameOk   = (v)=> String(v||'').trim().length >= 2;
 
-  // Recolección de UTM
-  function collectUTMs(){
-    const q = new URLSearchParams(location.search);
-    return {
-      utm_source:  q.get('utm_source')  || '',
-      utm_medium:  q.get('utm_medium')  || '',
-      utm_campaign:q.get('utm_campaign')|| '',
-    };
-  }
+  // ===== UTM =====
+  function collectUTMs(){ const q=new URLSearchParams(location.search); return {utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||''}; }
 
-  // Enviar al webhook sin bloquear la UX
-  async function pushToSheet(payload){
+  // ===== ENVIOS =====
+  function pushRailway(payload){
     try{
-      if (navigator.sendBeacon) {
-        const ok = navigator.sendBeacon('https://primary-production-639e.up.railway.app/webhook/goapple-leads', new Blob([JSON.stringify(payload)], {type:'application/json'}));
-        if (ok) return true;
+      if(navigator.sendBeacon){
+        const ok=navigator.sendBeacon('https://primary-production-639e.up.railway.app/webhook/goapple-leads', new Blob([JSON.stringify(payload)],{type:'application/json'}));
+        if(ok) return;
       }
     }catch(_){}
-    const controller = new AbortController();
-    const t = setTimeout(()=>controller.abort(), 3500);
-    try{
-      await fetch('https://primary-production-639e.up.railway.app/webhook/goapple-leads', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(payload),
-        keepalive: true,
-        signal: controller.signal
-      });
-    }catch(_){}
-    clearTimeout(t);
-    return true;
+    fetch('https://primary-production-639e.up.railway.app/webhook/goapple-leads', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), keepalive:true}).catch(()=>{});
   }
 
-  // Navegación pasos
+  function pushGAS(minPayload){
+    try{
+      const blob=new Blob([JSON.stringify(minPayload)], {type:'text/plain;charset=utf-8'});
+      if(navigator.sendBeacon){ navigator.sendBeacon('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', blob); return; }
+      fetch('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', {method:'POST', mode:'no-cors', body:blob, keepalive:true}).catch(()=>{});
+    }catch(_){}
+  }
+
+  // ===== NAVEGACIÓN =====
   document.getElementById('next').onclick=()=>{
-    if(!requiredFilled()){
-      alert('Completá nombre, correo y WhatsApp válidos.');
+    if(!nameOk($name.value) || !emailOk($mail.value)){
+      alert('Completá nombre y correo válidos.');
       return;
     }
     $s1.classList.add('hidden'); $s2.classList.remove('hidden'); $bud.focus();
@@ -174,77 +151,50 @@ fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
   document.getElementById('back').onclick=()=>{ $s2.classList.add('hidden'); $s1.classList.remove('hidden'); };
   document.getElementById('cancel').onclick=()=>{ history.back(); };
 
-  // Deep link a WhatsApp
-  function goWhatsApp(){
-    const msg = '👋 ¡Hola! Tengo un cupón de 10% de descuento';
-    const qs  = encodeURIComponent(msg);
-    const url = 'https://wa.me/5492646721845?text=' + qs;
-    location.replace(url);
-  }
-
-  // UI para presupuesto bajo
+  // ===== UI helpers =====
   function renderFinalMessage(){
-    $hdr.innerHTML = '<div class="final-wrap"><div class="final-emoji">👋</div><h2 class="final-title">¡Gracias por tu interés!</h2><p class="final-text">Por el momento no contamos con stock dentro de ese presupuesto. En breve ingresan iPhones nuevos 📲. Te voy a contactar apenas tengamos disponibilidad para que aproveches tu <strong>10% OFF</strong>.</p><span class="final-badge">Tu solicitud quedó registrada</span><div><button class="final-ok" aria-disabled="true">Entendido</button></div></div>';
-    $body.remove();
-    $note.textContent = 'Nos pondremos en contacto automáticamente ni bien haya disponibilidad.';
+    $hdr.innerHTML='<div class="final-wrap"><div class="final-emoji">👋</div><h2 class="final-title">¡Gracias por tu interés!</h2><p class="final-text">Por el momento no contamos con stock dentro de ese presupuesto. En breve ingresan iPhones nuevos 📲. Te voy a contactar apenas tengamos disponibilidad para que aproveches tu <strong>10% OFF</strong>.</p><span class="final-badge">Tu solicitud quedó registrada</span><div><button class="final-ok" aria-disabled="true">Entendido</button></div></div>';
+    $body.remove(); $note.textContent='Nos pondremos en contacto automáticamente ni bien haya disponibilidad.';
   }
+  function disableFormForever(){ sessionStorage.setItem(KEY,'1'); sessionStorage.setItem(KEY_LOW,'1'); try{ history.pushState({blocked:true}, ''); window.addEventListener('popstate',()=>history.pushState({blocked:true}, '')); }catch(_){} }
 
-  function disableFormForever(){
-    sessionStorage.setItem(KEY,'1');
-    sessionStorage.setItem(KEY_LOW,'1');
-    try {
-      history.pushState({blocked:true}, '');
-      window.addEventListener('popstate', ()=>{
-        if (sessionStorage.getItem(KEY_LOW) === '1') history.pushState({blocked:true}, '');
-      });
-    } catch(_) {}
-  }
-
-  // Submit
+  // ===== SUBMIT =====
   document.getElementById('send').onclick=async ()=>{
-    const name=($name.value||'').trim();
-    const email=($mail.value||'').trim();
-    const phone=($tel.value||'').trim();
+    const name = String($name.value||'').trim();
+    const email= String($mail.value||'').trim();
+    const phone= String($tel.value||'').trim();
     const budget=($bud.value||'').trim();
 
-    if(!name || !emailOk(email) || !phoneOk(phone)){
-      alert('Completá nombre, correo y WhatsApp válidos.');
-      return;
+    // Validación final (incluye WhatsApp)
+    if(!nameOk(name) || !emailOk(email) || !phoneOk(phone)){
+      alert('Completá nombre, correo y WhatsApp válidos.'); return;
     }
 
-    const btn=document.getElementById('send');
-    btn.disabled=true; btn.textContent='Enviando...';
-
+    // Persistimos en URL y armamos payloads
     const params=new URLSearchParams(location.search);
     params.set('name',name); params.set('email',email); params.set('phone',phone); params.set('budget',budget);
     history.replaceState({},'',location.pathname+'?'+params.toString());
     sessionStorage.setItem(KEY,'1');
 
     const utm = collectUTMs();
-    const payload = {
-      timestamp: new Date().toISOString(),
-      name, email, phone, budget,
-      ...utm,
-      page: location.href,
-      user_agent: navigator.userAgent
-    };
-    pushToSheet(payload);
+    const fullPayload = { timestamp:new Date().toISOString(), name, email, phone, budget, ...utm, page:location.href, user_agent:navigator.userAgent };
+    const minPayload  = { nombre:name, telefono:phone, presupuesto:budget, modelo:'', ciudad:'', pais:'', califica:'', origen:'goapple-form' };
 
-    try {
-      if (window.fbq) {
-        fbq('track', 'Lead', {
-          name, email, phone, budget,
-          currency: 'ARS'
-        });
-      }
-    } catch (_) {}
+    // Enviar (Railway + GAS) y dar tiempo en móvil
+    pushRailway(fullPayload);
+    pushGAS(minPayload);
 
-    if(budget==='menos'){
-      renderFinalMessage();
-      disableFormForever();
-      return;
-    }
-    goWhatsApp();
+    // Meta pixel (si está)
+    try{ if(window.fbq){ fbq('track','Lead',{ value: budget==='400-600'?500000 : budget==='700-900'?800000 : budget==='mas900'?1000000:0, currency:'ARS' }); } }catch(_){}
+
+    if(budget==='menos'){ renderFinalMessage(); disableFormForever(); return; }
+
+    // Espera corta para que los beacons salgan en móvil
+    await new Promise(r=>setTimeout(r, 800));
+
+    // Redirigir a WhatsApp
+    const msg='👋 ¡Hola! Tengo un cupón de 10% de descuento';
+    location.replace('https://wa.me/5492646721845?text='+encodeURIComponent(msg));
   };
 })();
 </script>

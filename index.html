@@ -142,9 +142,22 @@ fbq('init','650415544428771'); fbq('track','PageView');
     return true;
   }
 
+  // ✅ Envío a Apps Script SIN CORS: text/plain + sendBeacon/no-cors
   async function pushToGAS(payload){
     try{
-      await fetch('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const blob = new Blob([JSON.stringify(payload)], { type: 'text/plain;charset=utf-8' });
+
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', blob);
+        return;
+      }
+
+      await fetch('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: blob,
+        keepalive: true
+      });
     }catch(_){}
   }
 

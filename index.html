@@ -8,10 +8,12 @@
     body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; margin:0; background:#0b0b0c; color:#f2f2f2; }
     .wrap { max-width: 1160px; margin: 0 auto; padding: 24px; }
     h1 { font-size: 26px; margin: 0 0 14px; }
+
     .grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
     .card { border:1px solid #2a2a2a; border-radius:12px; padding:16px; background:#101012; }
     .label { font-size:12px; opacity:.7; }
     .num { font-size:34px; font-weight:800; margin-top:6px; }
+
     .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; align-items:center; }
     input { background:#121214; border:1px solid #2a2a2a; color:#fff; padding:10px 12px; border-radius:10px; min-width: 260px; }
     .btn { cursor:pointer; user-select:none; padding:10px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#121214; color:#fff; }
@@ -40,16 +42,20 @@
 
     /* Modal */
     .modalBg { position:fixed; inset:0; background: rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; padding:16px; z-index: 999; }
-    .modal { width:min(980px, 100%); max-height: 86vh; overflow:auto; border:1px solid #2a2a2a; border-radius:16px; background:#0f0f12; }
-    .modalHead { display:flex; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid #2a2a2a; position: sticky; top:0; background:#0f0f12; }
+    .modal { width:min(1100px, 100%); max-height: 88vh; overflow:auto; border:1px solid #2a2a2a; border-radius:16px; background:#0f0f12; }
+    .modalHead { display:flex; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid #2a2a2a; position: sticky; top:0; background:#0f0f12; align-items:center; flex-wrap:wrap; }
     .modalHead h2 { margin:0; font-size:16px; font-weight:800; }
     .x { cursor:pointer; border:1px solid #2a2a2a; background:#121214; color:#fff; border-radius:10px; padding:8px 10px; }
     .modalBody { padding: 14px 16px 18px; }
+
     .kv { display:grid; grid-template-columns: 180px 1fr; gap:10px; margin-top:10px; }
     .k { font-size:12px; opacity:.7; }
     .v { font-size:13px; line-height:1.35; }
     .box { margin-top:12px; border:1px solid #2a2a2a; background:#101012; border-radius:12px; padding:12px; }
     pre { margin:0; white-space:pre-wrap; word-break:break-word; font-size:12px; opacity:.92; }
+
+    .tabRow { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    iframe { width:100%; height:72vh; border:1px solid #2a2a2a; border-radius:12px; background:#0b0b0c; }
   </style>
 </head>
 <body>
@@ -86,38 +92,59 @@
     <div class="list" id="list"></div>
     <div class="muted" id="foot"></div>
 
-    <!-- ✅ Calendario siempre abajo -->
     <div class="calTitle">🗓️ Calendario de publicaciones</div>
     <div class="calSub" id="calSub"></div>
     <div id="calendarWrap"></div>
   </div>
 
-  <!-- ✅ Modal -->
   <div class="modalBg" id="modalBg">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modalHead">
-        <h2 id="mTitle">Detalle</h2>
-        <button class="x" id="mClose">Cerrar ✕</button>
+        <div style="min-width:0; flex:1;">
+          <h2 id="mTitle">Detalle</h2>
+        </div>
+
+        <div class="tabRow">
+          <button class="btn active" id="mTabDetalle">Detalle</button>
+          <button class="btn" id="mTabNotion">Notion</button>
+          <button class="x" id="mClose">Cerrar ✕</button>
+        </div>
       </div>
+
       <div class="modalBody">
-        <div class="kv">
-          <div class="k">Estado</div><div class="v" id="mEstado"></div>
-          <div class="k">Problema</div><div class="v" id="mProblema"></div>
-          <div class="k">Creado</div><div class="v" id="mCreado"></div>
-          <div class="k">Publicación</div><div class="v" id="mPub"></div>
-          <div class="k">Acción</div><div class="v" id="mAccion"></div>
-          <div class="k">Links</div><div class="v" id="mLinks"></div>
+        <div id="panelDetalle">
+          <div class="kv">
+            <div class="k">Estado</div><div class="v" id="mEstado"></div>
+            <div class="k">Problema</div><div class="v" id="mProblema"></div>
+            <div class="k">Creado</div><div class="v" id="mCreado"></div>
+            <div class="k">Publicación</div><div class="v" id="mPub"></div>
+            <div class="k">Acción</div><div class="v" id="mAccion"></div>
+            <div class="k">Links</div><div class="v" id="mLinks"></div>
+          </div>
+
+          <div class="box">
+            <div class="k">Script / Guion</div>
+            <div class="v" id="mScript" style="margin-top:6px; opacity:.9;"></div>
+          </div>
+
+          <div class="box">
+            <div class="k">JSON completo</div>
+            <pre id="mJson"></pre>
+          </div>
         </div>
 
-        <div class="box">
-          <div class="k">Script / Guion</div>
-          <div class="v" id="mScript" style="margin-top:6px; opacity:.9;"></div>
+        <div id="panelNotion" style="display:none;">
+          <div class="box" style="margin-top:0;">
+            <div class="k">Vista Notion (si queda en blanco, Notion bloqueó el embed)</div>
+            <div style="margin-top:10px;">
+              <iframe id="notionFrame" loading="lazy"></iframe>
+            </div>
+            <div class="muted" style="margin-top:10px;">
+              Si no carga, usá el link "Notion" del panel Detalle para abrirlo.
+            </div>
+          </div>
         </div>
 
-        <div class="box">
-          <div class="k">JSON completo</div>
-          <pre id="mJson"></pre>
-        </div>
       </div>
     </div>
   </div>
@@ -139,11 +166,10 @@
   }
   function created(it){ return it.property_fecha_de_creaci_n?.start || null; }
 
-  // ✅ Script/guion: intenta varios nombres comunes
+  // intenta varios nombres comunes (por si después agregás guion)
   function script(it){
     return it.property_script
       || it.property_guion
-      || it.property_script_o_guion
       || it.property_texto
       || it.script
       || it.guion
@@ -162,9 +188,31 @@
     return d.toLocaleDateString("es-AR", { year:"numeric", month:"2-digit", day:"2-digit" });
   }
 
-  // Modal helpers
+  // Modal
   const modalBg = document.getElementById("modalBg");
   const mClose = document.getElementById("mClose");
+  const notionFrame = document.getElementById("notionFrame");
+
+  const mTabDetalle = document.getElementById("mTabDetalle");
+  const mTabNotion = document.getElementById("mTabNotion");
+  const panelDetalle = document.getElementById("panelDetalle");
+  const panelNotion = document.getElementById("panelNotion");
+
+  function setModalTab(which){
+    [mTabDetalle, mTabNotion].forEach(b => b.classList.remove("active"));
+    if(which === "detalle"){
+      mTabDetalle.classList.add("active");
+      panelDetalle.style.display = "block";
+      panelNotion.style.display = "none";
+    } else {
+      mTabNotion.classList.add("active");
+      panelDetalle.style.display = "none";
+      panelNotion.style.display = "block";
+    }
+  }
+
+  mTabDetalle.onclick = () => setModalTab("detalle");
+  mTabNotion.onclick = () => setModalTab("notion");
 
   function openModal(it){
     document.getElementById("mTitle").textContent = title(it);
@@ -185,9 +233,17 @@
 
     const s = script(it);
     document.getElementById("mScript").textContent = s ? s : "— (no hay script/guion en este item todavía)";
-
     document.getElementById("mJson").textContent = JSON.stringify(it, null, 2);
 
+    // cargar notion iframe
+    if(it.url){
+      notionFrame.src = it.url;
+    } else {
+      notionFrame.src = "about:blank";
+    }
+
+    // abrir en detalle por defecto
+    setModalTab("detalle");
     modalBg.style.display = "flex";
   }
   function closeModal(){ modalBg.style.display = "none"; }
@@ -219,7 +275,7 @@
   }
 
   function renderList(view){
-    elList.innerHTML = view.slice(0, 120).map((i, idx) => {
+    elList.innerHTML = view.slice(0, 120).map((i) => {
       const t = title(i);
       const e = estado(i) || "—";
       const prob = problema(i);
@@ -231,7 +287,6 @@
 
       const chip = POR_CREAR.has(e) ? "Por crear" : (LISTO.has(e) ? "Listo" : e);
 
-      // data-i usa índice global (en memoria) -> guardamos id para lookup más fiable
       return `
         <div class="item" data-id="${i.id}">
           <div style="min-width:0">
@@ -253,7 +308,6 @@
       `;
     }).join("");
 
-    // Click handler (event delegation)
     elList.querySelectorAll(".item").forEach(el => {
       el.addEventListener("click", () => {
         const id = el.getAttribute("data-id");
@@ -263,7 +317,6 @@
     });
   }
 
-  // ✅ Calendario siempre visible abajo
   function renderCalendar(){
     const calWrap = document.getElementById("calendarWrap");
     const calSub = document.getElementById("calSub");
@@ -278,7 +331,6 @@
       return;
     }
 
-    // agrupar por día
     const map = new Map();
     enCal.forEach(i => {
       const d = fmtDay(pubDate(i));
@@ -308,7 +360,6 @@
       </div>
     `;
 
-    // click en eventos del calendario abre modal
     calWrap.querySelectorAll(".ev").forEach(el => {
       el.addEventListener("click", () => {
         const id = el.getAttribute("data-id");
@@ -347,7 +398,6 @@
 
     elFoot.textContent = `Mostrando ${Math.min(120, view.length)} de ${view.length} (${mode}). Tocá un item para ver el detalle.`;
 
-    // ✅ siempre render calendario
     renderCalendar();
   }
 

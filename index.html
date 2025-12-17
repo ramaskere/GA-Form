@@ -6,24 +6,29 @@
   <title>Dashboard de Contenido</title>
   <style>
     body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; margin:0; background:#0b0b0c; color:#f2f2f2; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 24px; }
     h1 { font-size: 26px; margin: 0 0 14px; }
-    .grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px; }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
     .card { border:1px solid #2a2a2a; border-radius:12px; padding:16px; background:#101012; }
     .label { font-size:12px; opacity:.7; }
     .num { font-size:34px; font-weight:800; margin-top:6px; }
-    .row { display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; }
-    input { background:#121214; border:1px solid #2a2a2a; color:#fff; padding:10px 12px; border-radius:10px; min-width: 240px; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; align-items:center; }
+    input { background:#121214; border:1px solid #2a2a2a; color:#fff; padding:10px 12px; border-radius:10px; min-width: 260px; }
     .btn { cursor:pointer; user-select:none; padding:10px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#121214; color:#fff; }
     .btn.active { border-color:#6b6bff; }
     .list { margin-top:14px; border:1px solid #2a2a2a; border-radius:12px; overflow:hidden; background:#101012; }
     .item { display:flex; justify-content:space-between; gap:12px; padding:12px 14px; border-top:1px solid #2a2a2a; }
     .item:first-child { border-top:none; }
-    .title { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 680px; }
+    .title { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 720px; }
     .meta { font-size:12px; opacity:.75; margin-top:4px; }
+    .chip { display:inline-block; font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid #2a2a2a; background:#121214; opacity:.95; }
     a { color:#9aa0ff; text-decoration:none; font-size:12px; }
-    .right { text-align:right; white-space:nowrap; }
+    .right { text-align:right; white-space:nowrap; display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
     .muted { opacity:.7; margin-top:10px; font-size:12px; }
+    .cal { margin-top:14px; display:grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap:10px; }
+    .day { border:1px solid #2a2a2a; border-radius:12px; background:#101012; padding:10px; min-height:110px; }
+    .day h3 { margin:0 0 8px; font-size:12px; opacity:.75; font-weight:600; }
+    .ev { font-size:12px; padding:6px 8px; border-radius:10px; border:1px solid #2a2a2a; background:#121214; margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   </style>
 </head>
 <body>
@@ -40,29 +45,48 @@
         <div class="num" id="porCrear">—</div>
       </div>
       <div class="card">
-        <div class="label">✅ Otros estados</div>
-        <div class="num" id="otros">—</div>
+        <div class="label">✅ Listo (publicado / programado / creado)</div>
+        <div class="num" id="listo">—</div>
+      </div>
+      <div class="card">
+        <div class="label">🗓️ Con fecha de publicación</div>
+        <div class="num" id="enCal">—</div>
       </div>
     </div>
 
     <div class="row">
-      <input id="q" placeholder="Buscar por título..." />
+      <input id="q" placeholder="Buscar por título / problema..." />
+
       <button class="btn active" id="tabPorCrear">Por crear</button>
+      <button class="btn" id="tabListo">Listo</button>
+      <button class="btn" id="tabCalendario">Calendario</button>
       <button class="btn" id="tabTodos">Todos</button>
-      <button class="btn" id="refresh">↻ Actualizar (recargar)</button>
+
+      <button class="btn" id="refresh">↻ Recargar</button>
     </div>
 
+    <div id="calendarWrap" style="display:none;"></div>
     <div class="list" id="list"></div>
+
     <div class="muted" id="foot"></div>
   </div>
 
 <script>
-  // ✅ Datos embebidos desde n8n (sin fetch)
-  const ITEMS = [{"id":"28e4630b-a135-8109-81f5-ddc4321941db","name":"No pierdas tiempo: protegé tu iPhone robado con un bloqueo instantáneo","url":"https://www.notion.so/No-pierdas-tiempo-proteg-tu-iPhone-robado-con-un-bloqueo-instant-neo-28e4630ba135810981f5ddc4321941db","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:35:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"No pierdas tiempo: protegé tu iPhone robado con un bloqueo instantáneo"},{"id":"28e4630b-a135-8145-a290-e02f22e9ab9d","name":"Llevate el iPhone que querés sin reventar tu bolsillo de una","url":"https://www.notion.so/Llevate-el-iPhone-que-quer-s-sin-reventar-tu-bolsillo-de-una-28e4630ba1358145a290e02f22e9ab9d","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:33:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Llevate el iPhone que querés sin reventar tu bolsillo de una"},{"id":"28e4630b-a135-8163-aadb-c3c7a79dc693","name":"Si te roban el iPhone, podés bloquearlo en segundos desde cualquier lugar","url":"https://www.notion.so/Si-te-roban-el-iPhone-pod-s-bloquearlo-en-segundos-desde-cualquier-lugar-28e4630ba1358163aadbc3c7a79dc693","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:35:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Si te roban el iPhone, podés bloquearlo en segundos desde cualquier lugar"},{"id":"28e4630b-a135-8184-81d7-ff8c4ecf4577","name":"No esperes meses: estrena tu iPhone ahora y pagá tranqui","url":"https://www.notion.so/No-esperes-meses-estrena-tu-iPhone-ahora-y-pag-tranqui-28e4630ba135818481d7ff8c4ecf4577","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:33:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"No esperes meses: estrena tu iPhone ahora y pagá tranqui"},{"id":"28e4630b-a135-8184-ab8d-f8649abeb2c4","name":"Tu próximo iPhone, sin dudas ni vueltas: garantía incluida desde el inicio","url":"https://www.notion.so/Tu-pr-ximo-iPhone-sin-dudas-ni-vueltas-garant-a-incluida-desde-el-inicio-28e4630ba1358184ab8df8649abeb2c4","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:37:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Tu próximo iPhone, sin dudas ni vueltas: garantía incluida desde el inicio"},{"id":"28e4630b-a135-8188-bdcd-dc39a1861909","name":"Pagalo en cuotas fijas y empezá a usar tu iPhone hoy mismo","url":"https://www.notion.so/Pagalo-en-cuotas-fijas-y-empez-a-usar-tu-iPhone-hoy-mismo-28e4630ba1358188bdcddc39a1861909","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:33:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Pagalo en cuotas fijas y empezá a usar tu iPhone hoy mismo"},{"id":"28e4630b-a135-8190-a752-de1bfe834d1b","name":"Tu iPhone puede estar robado, pero tus datos no tienen por qué estar en riesgo","url":"https://www.notion.so/Tu-iPhone-puede-estar-robado-pero-tus-datos-no-tienen-por-qu-estar-en-riesgo-28e4630ba1358190a752de1bfe834d1b","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:35:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Tu iPhone puede estar robado, pero tus datos no tienen por qué estar en riesgo"},{"id":"28e4630b-a135-81a0-93ae-f6f8e7a07b38","name":"Volvé al desbloqueo instantáneo sin sacarte el barbijo","url":"https://www.notion.so/Volv-al-desbloqueo-instant-neo-sin-sacarte-el-barbijo-28e4630ba13581a093aef6f8e7a07b38","property_problema_relacionado":null,"property_estado":"nuevo","property_fecha_de_creaci_n":{"start":"2025-10-15T22:56:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Volvé al desbloqueo instantáneo sin sacarte el barbijo"},{"id":"28e4630b-a135-81c7-9c57-d9873666e6d5","name":"Olvidate de comprar usado sin respaldo, asegurate un iPhone garantizado","url":"https://www.notion.so/Olvidate-de-comprar-usado-sin-respaldo-asegurate-un-iPhone-garantizado-28e4630ba13581c79c57d9873666e6d5","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:37:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Olvidate de comprar usado sin respaldo, asegurate un iPhone garantizado"},{"id":"28e4630b-a135-81f5-9196-e92210d71a8e","name":"Comprá tu iPhone con garantía total y dormí tranquilo desde el primer día","url":"https://www.notion.so/Compr-tu-iPhone-con-garant-a-total-y-dorm-tranquilo-desde-el-primer-d-a-28e4630ba13581f59196e92210d71a8e","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:37:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Comprá tu iPhone con garantía total y dormí tranquilo desde el primer día"},{"id":"2cc4630b-a135-813f-a396-ddbb44a72c9a","name":"Pagalo en cuotas y empezá a estrenar tu iPhone hoy mismo","url":"https://www.notion.so/Pagalo-en-cuotas-y-empez-a-estrenar-tu-iPhone-hoy-mismo-2cc4630ba135813fa396ddbb44a72c9a","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:29:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Pagalo en cuotas y empezá a estrenar tu iPhone hoy mismo"},{"id":"2cc4630b-a135-815d-ae65-e60e20806876","name":"Accedé a un iPhone sin arruinar tu economía personal","url":"https://www.notion.so/Acced-a-un-iPhone-sin-arruinar-tu-econom-a-personal-2cc4630ba135815dae65e60e20806876","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:28:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Accedé a un iPhone sin arruinar tu economía personal"},{"id":"2cc4630b-a135-817a-8fd4-e923751ef83f","name":"Tu iPhone nuevo puede ser realidad con nuestros planes sin vueltas","url":"https://www.notion.so/Tu-iPhone-nuevo-puede-ser-realidad-con-nuestros-planes-sin-vueltas-2cc4630ba135817a8fd4e923751ef83f","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:29:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Tu iPhone nuevo puede ser realidad con nuestros planes sin vueltas"},{"id":"2cc4630b-a135-817e-900e-feab9b8064a0","name":"Tu primer iPhone puede estar más cerca de lo que pensás","url":"https://www.notion.so/Tu-primer-iPhone-puede-estar-m-s-cerca-de-lo-que-pens-s-2cc4630ba135817e900efeab9b8064a0","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:28:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Tu primer iPhone puede estar más cerca de lo que pensás"},{"id":"2cc4630b-a135-81dd-ac98-de4abc9bdc32","name":"¿Sin plata para un iPhone? Tenemos un plan justo para vos","url":"https://www.notion.so/Sin-plata-para-un-iPhone-Tenemos-un-plan-justo-para-vos-2cc4630ba13581ddac98de4abc9bdc32","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:29:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"¿Sin plata para un iPhone? Tenemos un plan justo para vos"},{"id":"2cc4630b-a135-81f5-8544-c6d23c6d46fb","name":"No necesitás pagar todo junto para tener un iPhone hoy mismo","url":"https://www.notion.so/No-necesit-s-pagar-todo-junto-para-tener-un-iPhone-hoy-mismo-2cc4630ba13581f58544c6d23c6d46fb","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:28:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"No necesitás pagar todo junto para tener un iPhone hoy mismo"}];
+  const ITEMS = [{"id":"28e4630b-a135-8177-8e38-e6ed7f900c22","name":"Te respondemos sin compromiso, ¡consultá tu iPhone ideal!","url":"https://www.notion.so/Te-respondemos-sin-compromiso-consult-tu-iPhone-ideal-28e4630ba13581778e38e6ed7f900c22","property_problema_relacionado":"No conozco esa tienda","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-16T18:39:00.000-04:00","end":null,"time_zone":null},"property_url":"https://www.canva.com/design/DAG1_oRsqRM/FLkPYOz73OWtpQGfJ94yRg/edit?utm_content=DAG1_oRsqRM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton","property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Te respondemos sin compromiso, ¡consultá tu iPhone ideal!"},{"id":"28e4630b-a135-8178-8c55-f39a8264d942","name":"Elegí tu iPhone hoy, con garantía y confianza total","url":"https://www.notion.so/Eleg-tu-iPhone-hoy-con-garant-a-y-confianza-total-28e4630ba13581788c55f39a8264d942","property_problema_relacionado":"No conozco esa tienda","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-16T18:39:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Elegí tu iPhone hoy, con garantía y confianza total"},{"id":"28e4630b-a135-8197-801e-e795dc54a513","name":"Tu iPhone ya no se actualiza. Renovalo hoy y quedate tranquilo por años.","url":"https://www.notion.so/Tu-iPhone-ya-no-se-actualiza-Renovalo-hoy-y-quedate-tranquilo-por-a-os-28e4630ba1358197801ee795dc54a513","property_problema_relacionado":"Ya no actualiza iOS","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-16T15:28:00.000-04:00","end":null,"time_zone":null},"property_url":"https://www.canva.com/design/DAG1-36SCC8/zwaYKWHumssNQ92CwyHtxw/edit?utm_content=DAG1-36SCC8&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton","property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Tu iPhone ya no se actualiza. Renovalo hoy y quedate tranquilo por años."},{"id":"28e4630b-a135-81cb-8058-c7abf4ec8807","name":"Miles ya compraron su iPhone con garantía, ¿qué esperás?","url":"https://www.notion.so/Miles-ya-compraron-su-iPhone-con-garant-a-qu-esper-s-28e4630ba13581cb8058c7abf4ec8807","property_problema_relacionado":"No conozco esa tienda","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-16T18:39:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Miles ya compraron su iPhone con garantía, ¿qué esperás?"},{"id":"28e4630b-a135-81db-984e-decc5407e4f6","name":"Seguís usando un iPhone desactualizado... ¿Y si lo renovás sin vueltas?","url":"https://www.notion.so/Segu-s-usando-un-iPhone-desactualizado-Y-si-lo-renov-s-sin-vueltas-28e4630ba13581db984edecc5407e4f6","property_problema_relacionado":"Ya no actualiza iOS","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-16T15:28:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Seguís usando un iPhone desactualizado... ¿Y si lo renovás sin vueltas?"},{"id":"28f4630b-a135-8120-a7c4-c2c001a743d9","name":"Tu próximo iPhone en camino sin trámites ni sorpresas, ¿cuándo arrancamos?","url":"https://www.notion.so/Tu-pr-ximo-iPhone-en-camino-sin-tr-mites-ni-sorpresas-cu-ndo-arrancamos-28f4630ba1358120a7c4c2c001a743d9","property_problema_relacionado":"Mejor espero el 15","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:14:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Tu próximo iPhone en camino sin trámites ni sorpresas, ¿cuándo arrancamos?"},{"id":"28f4630b-a135-813d-8271-f9eb7817b981","name":"Dejá de esperar al 15: hoy mismo podés tener tu iPhone sin vueltas","url":"https://www.notion.so/Dej-de-esperar-al-15-hoy-mismo-pod-s-tener-tu-iPhone-sin-vueltas-28f4630ba135813d8271f9eb7817b981","property_problema_relacionado":"Mejor espero el 15","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:14:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Dejá de esperar al 15: hoy mismo podés tener tu iPhone sin vueltas"},{"id":"28f4630b-a135-813f-b02c-fe5e90756089","name":"No esperes más: pagalo en partes, disfrutalo entero desde hoy.","url":"https://www.notion.so/No-esperes-m-s-pagalo-en-partes-disfrutalo-entero-desde-hoy-28f4630ba135813fb02cfe5e90756089","property_problema_relacionado":"Es mucha guita junta","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T15:21:00.000-04:00","end":null,"time_zone":null},"property_url":"https://www.canva.com/design/DAG2E59QLo8/WNMLVHmk5ZEZrtn9U7Ru6A/edit?utm_content=DAG2E59QLo8&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton","property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"No esperes más: pagalo en partes, disfrutalo entero desde hoy."},{"id":"28f4630b-a135-8168-a52d-f541a3b15257","name":"Dejá de renegar con tu iPhone: hoy lo entendés en minutos, no en horas","url":"https://www.notion.so/Dej-de-renegar-con-tu-iPhone-hoy-lo-entend-s-en-minutos-no-en-horas-28f4630ba1358168a52df541a3b15257","property_problema_relacionado":"Se me hace chino","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:33:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Dejá de renegar con tu iPhone: hoy lo entendés en minutos, no en horas"},{"id":"28f4630b-a135-8171-a5f4-d51b99f9e9c4","name":"Dejás el cargador en casa sabiendo que no te va a fallar el iPhone.","url":"https://www.notion.so/Dej-s-el-cargador-en-casa-sabiendo-que-no-te-va-a-fallar-el-iPhone-28f4630ba1358171a5f4d51b99f9e9c4","property_problema_relacionado":"Me cagás con la batería","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:00:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Dejás el cargador en casa sabiendo que no te va a fallar el iPhone."},{"id":"28f4630b-a135-8198-9681-ffd2175db02c","name":"¿Demasiado caro de una? Llevátelo en cuotas sin vueltas.","url":"https://www.notion.so/Demasiado-caro-de-una-Llev-telo-en-cuotas-sin-vueltas-28f4630ba13581989681ffd2175db02c","property_problema_relacionado":"Es mucha guita junta","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T15:21:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"¿Demasiado caro de una? Llevátelo en cuotas sin vueltas."},{"id":"28f4630b-a135-819f-894d-d61221eeeca7","name":"Chequeá esto antes de comprar un iPhone usado o podés perder plata.","url":"https://www.notion.so/Cheque-esto-antes-de-comprar-un-iPhone-usado-o-pod-s-perder-plata-28f4630ba135819f894dd61221eeeca7","property_problema_relacionado":"¿Tiene Face ID trucho?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:27:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Chequeá esto antes de comprar un iPhone usado o podés perder plata."},{"id":"28f4630b-a135-81ad-a968-ec7479c3e0d7","name":"No compres un iPhone sin revisar si el Face ID es original. Te podés arrepentir.","url":"https://www.notion.so/No-compres-un-iPhone-sin-revisar-si-el-Face-ID-es-original-Te-pod-s-arrepentir-28f4630ba13581ada968ec7479c3e0d7","property_problema_relacionado":"¿Tiene Face ID trucho?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:27:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"No compres un iPhone sin revisar si el Face ID es original. Te podés arrepentir."},{"id":"28f4630b-a135-81b4-95b5-e3211da99dc7","name":"¿Y si lo estrenas HOY? Sin esperas, sin vueltas, sin complicaciones","url":"https://www.notion.so/Y-si-lo-estrenas-HOY-Sin-esperas-sin-vueltas-sin-complicaciones-28f4630ba13581b495b5e3211da99dc7","property_problema_relacionado":"Mejor espero el 15","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:14:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"¿Y si lo estrenas HOY? Sin esperas, sin vueltas, sin complicaciones"},{"id":"28f4630b-a135-81bb-870b-ff6653ac85e2","name":"¿Tu iPhone se apaga en horas? Te cambiamos la batería en el acto.","url":"https://www.notion.so/Tu-iPhone-se-apaga-en-horas-Te-cambiamos-la-bater-a-en-el-acto-28f4630ba13581bb870bff6653ac85e2","property_problema_relacionado":"Me cagás con la batería","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:00:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"¿Tu iPhone se apaga en horas? Te cambiamos la batería en el acto."},{"id":"28f4630b-a135-81c3-9e90-cb3cc8020a21","name":"Tu iPhone nuevo, pagado en cuotas y sin sangrar la billetera.","url":"https://www.notion.so/Tu-iPhone-nuevo-pagado-en-cuotas-y-sin-sangrar-la-billetera-28f4630ba13581c39e90cb3cc8020a21","property_problema_relacionado":"Es mucha guita junta","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T15:21:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Tu iPhone nuevo, pagado en cuotas y sin sangrar la billetera."},{"id":"28f4630b-a135-81cc-a339-e049ca2d56d5","name":"¿Tu iPhone te vuelve loco? ¡Te lo explicamos bien, sin vueltas!","url":"https://www.notion.so/Tu-iPhone-te-vuelve-loco-Te-lo-explicamos-bien-sin-vueltas-28f4630ba13581cca339e049ca2d56d5","property_problema_relacionado":"Se me hace chino","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:33:00.000-04:00","end":null,"time_zone":null},"property_url":"https://www.canva.com/design/DAG2u1PrNh0/qViEysa354NopfEYdHr9NA/edit?utm_content=DAG2u1PrNh0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton","property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"¿Tu iPhone te vuelve loco? ¡Te lo explicamos bien, sin vueltas!"},{"id":"28f4630b-a135-81db-8877-dced2f58ad10","name":"Entrá ahora y empezá a disfrutar tu iPhone sin complicarte más","url":"https://www.notion.so/Entr-ahora-y-empez-a-disfrutar-tu-iPhone-sin-complicarte-m-s-28f4630ba13581db8877dced2f58ad10","property_problema_relacionado":"Se me hace chino","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:33:00.000-04:00","end":null,"time_zone":null},"property_url":"https://www.canva.com/design/DAG2E59QLo8/WNMLVHmk5ZEZrtn9U7Ru6A/edit?utm_content=DAG2E59QLo8&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton","property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Entrá ahora y empezá a disfrutar tu iPhone sin complicarte más"},{"id":"28f4630b-a135-81df-ab6a-ced0c8bdc38d","name":"Evitá que te estafen: revisá el Face ID antes de pagar tu iPhone.","url":"https://www.notion.so/Evit-que-te-estafen-revis-el-Face-ID-antes-de-pagar-tu-iPhone-28f4630ba13581dfab6aced0c8bdc38d","property_problema_relacionado":"¿Tiene Face ID trucho?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T17:27:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Evitá que te estafen: revisá el Face ID antes de pagar tu iPhone."},{"id":"2904630b-a135-8105-8f16-f28ea7005441","name":"Querés iPhone y tranquilidad total? Este es el lugar","url":"https://www.notion.so/Quer-s-iPhone-y-tranquilidad-total-Este-es-el-lugar-2904630ba13581058f16f28ea7005441","property_problema_relacionado":"No me dan factura","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T16:45:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Querés iPhone y tranquilidad total? Este es el lugar"},{"id":"2904630b-a135-8109-b506-d8b8a894e306","name":"No cambies la batería de tu iPhone sin saber esto antes","url":"https://www.notion.so/No-cambies-la-bater-a-de-tu-iPhone-sin-saber-esto-antes-2904630ba1358109b506d8b8a894e306","property_problema_relacionado":"No entiendo los ciclos de batería","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T16:54:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"No cambies la batería de tu iPhone sin saber esto antes"},{"id":"2904630b-a135-8125-bbc4-e185895e6bb1","name":"iPhone libre de iCloud = compra 100% segura. Garantizado y listo para usar","url":"https://www.notion.so/iPhone-libre-de-iCloud-compra-100-segura-Garantizado-y-listo-para-usar-2904630ba1358125bbc4e185895e6bb1","property_problema_relacionado":"¿Y si tiene iCloud?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T23:04:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"iPhone libre de iCloud = compra 100% segura. Garantizado y listo para usar"},{"id":"2904630b-a135-814b-9142-d3d821630892","name":"Probalo hoy sin compromiso y elegí tranquilo tu próximo iPhone","url":"https://www.notion.so/Probalo-hoy-sin-compromiso-y-eleg-tranquilo-tu-pr-ximo-iPhone-2904630ba135814b9142d3d821630892","property_problema_relacionado":"No lo puedo probar bien","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T18:45:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Probalo hoy sin compromiso y elegí tranquilo tu próximo iPhone"},{"id":"2904630b-a135-8165-a7f8-cb8d382882e4","name":"Sin vueltas, ni excusas: tu nuevo iPhone llega con todo en regla","url":"https://www.notion.so/Sin-vueltas-ni-excusas-tu-nuevo-iPhone-llega-con-todo-en-regla-2904630ba1358165a7f8cb8d382882e4","property_problema_relacionado":"No me dan factura","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T16:45:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Sin vueltas, ni excusas: tu nuevo iPhone llega con todo en regla"},{"id":"2904630b-a135-816b-96d4-e3f47fc47ea8","name":"Ahorra plata verificando si tu iPhone lo necesita realmente","url":"https://www.notion.so/Ahorra-plata-verificando-si-tu-iPhone-lo-necesita-realmente-2904630ba135816b96d4e3f47fc47ea8","property_problema_relacionado":"No entiendo los ciclos de batería","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T16:54:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Ahorra plata verificando si tu iPhone lo necesita realmente"},{"id":"2904630b-a135-817f-8c32-d3833a59f4f9","name":"Revisá primero y evitá gastar en una batería innecesaria","url":"https://www.notion.so/Revis-primero-y-evit-gastar-en-una-bater-a-innecesaria-2904630ba135817f8c32d3833a59f4f9","property_problema_relacionado":"No entiendo los ciclos de batería","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T16:54:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Revisá primero y evitá gastar en una batería innecesaria"},{"id":"2904630b-a135-8180-874f-f57dac454c66","name":"Tomá tu decisión con confianza: probalo antes de comprar","url":"https://www.notion.so/Tom-tu-decisi-n-con-confianza-probalo-antes-de-comprar-2904630ba1358180874ff57dac454c66","property_problema_relacionado":"No lo puedo probar bien","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T18:45:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Tomá tu decisión con confianza: probalo antes de comprar"},{"id":"2904630b-a135-818a-ae3d-e8dcc812e7c9","name":"¿Tu iPhone no rinde el día completo? Consultanos y descubrí si es la batería.","url":"https://www.notion.so/Tu-iPhone-no-rinde-el-d-a-completo-Consultanos-y-descubr-si-es-la-bater-a-2904630ba135818aae3de8dcc812e7c9","property_problema_relacionado":"No entiendo los ciclos de batería","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T16:57:00.000-04:00","end":null,"time_zone":null},"property_url":"https://www.canva.com/design/DAG2MDpAuwY/R9xMZuoeu8rAjso_WXd7RA/edit?utm_content=DAG2MDpAuwY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton","property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"¿Tu iPhone no rinde el día completo? Consultanos y descubrí si es la batería."},{"id":"2904630b-a135-8190-ad1b-efa5581deb79","name":"Despreocupate, comprás tu iPhone y lo usás al instante, sin cuentas ni bloqueos","url":"https://www.notion.so/Despreocupate-compr-s-tu-iPhone-y-lo-us-s-al-instante-sin-cuentas-ni-bloqueos-2904630ba1358190ad1befa5581deb79","property_problema_relacionado":"¿Y si tiene iCloud?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T23:04:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Despreocupate, comprás tu iPhone y lo usás al instante, sin cuentas ni bloqueos"},{"id":"2904630b-a135-81ac-8c4a-dfd7222db049","name":"Conocé si es el iPhone indicado para vos antes de decidirte","url":"https://www.notion.so/Conoc-si-es-el-iPhone-indicado-para-vos-antes-de-decidirte-2904630ba13581ac8c4adfd7222db049","property_problema_relacionado":"No lo puedo probar bien","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T18:45:00.000-04:00","end":null,"time_zone":null},"property_url":"https://www.canva.com/design/DAG2G-1V1Gg/jQ-CALySSS77A-1QwvgEQg/edit?utm_content=DAG2G-1V1Gg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton","property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Conocé si es el iPhone indicado para vos antes de decidirte"},{"id":"2904630b-a135-81b4-b1e1-d2d265dda9e4","name":"Compralo hoy con factura oficial y olvidate de dramas mañana","url":"https://www.notion.so/Compralo-hoy-con-factura-oficial-y-olvidate-de-dramas-ma-ana-2904630ba13581b4b1e1d2d265dda9e4","property_problema_relacionado":"No me dan factura","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-18T16:45:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Compralo hoy con factura oficial y olvidate de dramas mañana"},{"id":"2904630b-a135-81df-b7ea-fce0f6860814","name":"Evitá sorpresas: todos nuestros iPhones vienen con iCloud completamente liberado","url":"https://www.notion.so/Evit-sorpresas-todos-nuestros-iPhones-vienen-con-iCloud-completamente-liberado-2904630ba13581dfb7eafce0f6860814","property_problema_relacionado":"¿Y si tiene iCloud?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-17T23:04:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Evitá sorpresas: todos nuestros iPhones vienen con iCloud completamente liberado"},{"id":"2954630b-a135-8163-8256-e6d5c4cbda3c","name":"No tires plata: confirmá si es nuevo de verdad antes de comprar","url":"https://www.notion.so/No-tires-plata-confirm-si-es-nuevo-de-verdad-antes-de-comprar-2954630ba13581638256e6d5c4cbda3c","property_problema_relacionado":"Me sale lo mismo nuevo afuera","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-23T18:11:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"No tires plata: confirmá si es nuevo de verdad antes de comprar"},{"id":"2954630b-a135-8177-9315-c59c7dbd4ce4","name":"¿Vas a viajar y comprar un iPhone? Te ayudamos a no caer en fraudes","url":"https://www.notion.so/Vas-a-viajar-y-comprar-un-iPhone-Te-ayudamos-a-no-caer-en-fraudes-2954630ba13581779315c59c7dbd4ce4","property_problema_relacionado":"Me sale lo mismo nuevo afuera","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-23T18:11:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"¿Vas a viajar y comprar un iPhone? Te ayudamos a no caer en fraudes"},{"id":"2954630b-a135-81aa-9293-c06e37fab2b6","name":"Chequeá tu iPhone antes de pagar y evitá que te vendan uno reparado","url":"https://www.notion.so/Cheque-tu-iPhone-antes-de-pagar-y-evit-que-te-vendan-uno-reparado-2954630ba13581aa9293c06e37fab2b6","property_problema_relacionado":"Me sale lo mismo nuevo afuera","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-23T18:11:00.000-04:00","end":null,"time_zone":null},"property_url":"https://www.canva.com/design/DAG2prWfMFg/RVGKaKuxPSu__IxuA-cK3w/edit?utm_content=DAG2prWfMFg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton","property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Chequeá tu iPhone antes de pagar y evitá que te vendan uno reparado"},{"id":"2964630b-a135-8117-8241-dddf447f6147","name":"Hoy podés tener el iPhone que querías sin pagar de más","url":"https://www.notion.so/Hoy-pod-s-tener-el-iPhone-que-quer-as-sin-pagar-de-m-s-2964630ba13581178241dddf447f6147","property_problema_relacionado":"Capaz baja más el dólar","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-24T15:30:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Hoy podés tener el iPhone que querías sin pagar de más"},{"id":"2964630b-a135-814d-947d-edfc56f5e91e","name":"Evitate comprar un iPhone robado: lo chequeamos por vos en el momento","url":"https://www.notion.so/Evitate-comprar-un-iPhone-robado-lo-chequeamos-por-vos-en-el-momento-2964630ba135814d947dedfc56f5e91e","property_problema_relacionado":"¿Y si está reportado?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-24T15:34:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Evitate comprar un iPhone robado: lo chequeamos por vos en el momento"},{"id":"2964630b-a135-8163-9555-de1a984c5094","name":"Antes de comprar tu iPhone, te decimos si está limpio o bloqueado. Así de simple","url":"https://www.notion.so/Antes-de-comprar-tu-iPhone-te-decimos-si-est-limpio-o-bloqueado-As-de-simple-2964630ba13581639555de1a984c5094","property_problema_relacionado":"¿Y si está reportado?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-24T15:34:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Antes de comprar tu iPhone, te decimos si está limpio o bloqueado. Así de simple"},{"id":"2964630b-a135-816d-94b3-c46a437adbc7","name":"¡Ahora tu iPhone te cuesta menos que nunca! Aprovechá antes de que suba el dólar","url":"https://www.notion.so/Ahora-tu-iPhone-te-cuesta-menos-que-nunca-Aprovech-antes-de-que-suba-el-d-lar-2964630ba135816d94b3c46a437adbc7","property_problema_relacionado":"Capaz baja más el dólar","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-24T15:30:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"¡Ahora tu iPhone te cuesta menos que nunca! Aprovechá antes de que suba el dólar"},{"id":"2964630b-a135-817a-98a5-f2a923310fd7","name":"No compres otro chip sin saber si tu iPhone está libre","url":"https://www.notion.so/No-compres-otro-chip-sin-saber-si-tu-iPhone-est-libre-2964630ba135817a98a5f2a923310fd7","property_problema_relacionado":"Ni idea si es liberado","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-24T15:54:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"No compres otro chip sin saber si tu iPhone está libre"},{"id":"2964630b-a135-819c-86d2-fcba5cd33adb","name":"Chequeamos en minutos si está reportado: no arriesgues tu plata ni tu tranquilidad","url":"https://www.notion.so/Chequeamos-en-minutos-si-est-reportado-no-arriesgues-tu-plata-ni-tu-tranquilidad-2964630ba135819c86d2fcba5cd33adb","property_problema_relacionado":"¿Y si está reportado?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-24T15:34:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Chequeamos en minutos si está reportado: no arriesgues tu plata ni tu tranquilidad"},{"id":"2964630b-a135-81ca-82d1-f1f022923e63","name":"Revisá ya si tu iPhone acepta cualquier compañía, sin vueltas","url":"https://www.notion.so/Revis-ya-si-tu-iPhone-acepta-cualquier-compa-a-sin-vueltas-2964630ba13581ca82d1f1f022923e63","property_problema_relacionado":"Ni idea si es liberado","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-24T15:54:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Revisá ya si tu iPhone acepta cualquier compañía, sin vueltas"},{"id":"2964630b-a135-81d1-9a93-e3cfbd2a483e","name":"Descubrí en minutos si tu iPhone está liberado o sigue bloqueado","url":"https://www.notion.so/Descubr-en-minutos-si-tu-iPhone-est-liberado-o-sigue-bloqueado-2964630ba13581d19a93e3cfbd2a483e","property_problema_relacionado":"Ni idea si es liberado","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-24T15:54:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Descubrí en minutos si tu iPhone está liberado o sigue bloqueado"},{"id":"2964630b-a135-81fa-ade9-c3062206ea6d","name":"Con el dólar más bajo, tu nuevo iPhone está más cerca de lo que pensás","url":"https://www.notion.so/Con-el-d-lar-m-s-bajo-tu-nuevo-iPhone-est-m-s-cerca-de-lo-que-pens-s-2964630ba13581faade9c3062206ea6d","property_problema_relacionado":"Capaz baja más el dólar","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-24T15:30:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Con el dólar más bajo, tu nuevo iPhone está más cerca de lo que pensás"},{"id":"2974630b-a135-8140-9033-c7db11476a4a","name":"No te arriesgues: tenés garantía escrita real que te cubre de verdad.","url":"https://www.notion.so/No-te-arriesgues-ten-s-garant-a-escrita-real-que-te-cubre-de-verdad-2974630ba13581409033c7db11476a4a","property_problema_relacionado":"¿Y si no dura?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-25T12:51:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"No te arriesgues: tenés garantía escrita real que te cubre de verdad."},{"id":"2974630b-a135-81af-a888-eceff9e83e55","name":"Comprás tranquilo: si falla, volvés y lo resolvemos sin vueltas.","url":"https://www.notion.so/Compr-s-tranquilo-si-falla-volv-s-y-lo-resolvemos-sin-vueltas-2974630ba13581afa888eceff9e83e55","property_problema_relacionado":"¿Y si no dura?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-25T12:51:00.000-04:00","end":null,"time_zone":null},"property_url":"https://www.canva.com/design/DAG2wMIsGzQ/H6jNLXg1EDF8aMWhLKvCOA/edit?utm_content=DAG2wMIsGzQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton","property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Comprás tranquilo: si falla, volvés y lo resolvemos sin vueltas."},{"id":"2974630b-a135-81c4-94c2-e94abad845a0","name":"Con nuestra garantía firmada, tu iPhone está cubierto desde el primer día.","url":"https://www.notion.so/Con-nuestra-garant-a-firmada-tu-iPhone-est-cubierto-desde-el-primer-d-a-2974630ba13581c494c2e94abad845a0","property_problema_relacionado":"¿Y si no dura?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-25T12:51:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Con nuestra garantía firmada, tu iPhone está cubierto desde el primer día."},{"id":"29a4630b-a135-8152-8f6b-ef0ab4dd37d9","name":"Hoy tenés promo en iPhone, mañana capaz también… si queda alguno para vos.","url":"https://www.notion.so/Hoy-ten-s-promo-en-iPhone-ma-ana-capaz-tambi-n-si-queda-alguno-para-vos-29a4630ba13581528f6bef0ab4dd37d9","property_problema_relacionado":"¿Y si justo lo bajan?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-28T19:36:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Hoy tenés promo en iPhone, mañana capaz también… si queda alguno para vos."},{"id":"29a4630b-a135-8155-bf25-d26d0c6ae7ac","name":"Estás a un mensaje de tener tu iPhone en promo. Después no digas que no avisamos.","url":"https://www.notion.so/Est-s-a-un-mensaje-de-tener-tu-iPhone-en-promo-Despu-s-no-digas-que-no-avisamos-29a4630ba1358155bf25d26d0c6ae7ac","property_problema_relacionado":"¿Y si justo lo bajan?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-28T19:36:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Estás a un mensaje de tener tu iPhone en promo. Después no digas que no avisamos."},{"id":"29a4630b-a135-81fb-a4e5-ff1b7280d5df","name":"Si mañana querés uno, capaz ya no haya. Aprovechá hoy y asegurá tu iPhone.","url":"https://www.notion.so/Si-ma-ana-quer-s-uno-capaz-ya-no-haya-Aprovech-hoy-y-asegur-tu-iPhone-29a4630ba13581fba4e5ff1b7280d5df","property_problema_relacionado":"¿Y si justo lo bajan?","property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-28T19:36:00.000-04:00","end":null,"time_zone":null},"property_url":null,"property_accion":"GENERAR_CONTENIDOS","property_fecha_publicacion":null,"property_nombre":"Si mañana querés uno, capaz ya no haya. Aprovechá hoy y asegurá tu iPhone."}];
+
+  const POR_CREAR = new Set(["generado"]);
+  const LISTO = new Set(["listo"]);
 
   function estado(it){ return (it.property_estado || "").toLowerCase().trim(); }
-  function fecha(it){ return it.property_fecha_de_creaci_n?.start || null; }
   function title(it){ return it.property_nombre || it.name || "Sin título"; }
+  function problema(it){ return it.property_problema_relacionado || ""; }
+  function pubDate(it){
+    const v = it.property_fecha_publicacion;
+    if(!v) return null;
+    if(typeof v === "string") return v;
+    return v.start || null;
+  }
+  function created(it){ return it.property_fecha_de_creaci_n?.start || null; }
 
   function fmt(iso){
     if(!iso) return "Sin fecha";
@@ -70,64 +94,154 @@
     if(Number.isNaN(d.getTime())) return iso;
     return d.toLocaleString("es-AR", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
   }
+  function fmtDay(iso){
+    const d = new Date(iso);
+    if(Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString("es-AR", { year:"numeric", month:"2-digit", day:"2-digit" });
+  }
 
   let mode = "por-crear";
 
   const elTotal = document.getElementById("total");
   const elPorCrear = document.getElementById("porCrear");
-  const elOtros = document.getElementById("otros");
+  const elListo = document.getElementById("listo");
+  const elEnCal = document.getElementById("enCal");
   const elList = document.getElementById("list");
   const elFoot = document.getElementById("foot");
   const elQ = document.getElementById("q");
+  const calWrap = document.getElementById("calendarWrap");
 
   const tabPorCrear = document.getElementById("tabPorCrear");
+  const tabListo = document.getElementById("tabListo");
+  const tabCalendario = document.getElementById("tabCalendario");
   const tabTodos = document.getElementById("tabTodos");
 
   function setActive(){
-    [tabPorCrear, tabTodos].forEach(b => b.classList.remove("active"));
+    [tabPorCrear, tabListo, tabCalendario, tabTodos].forEach(b => b.classList.remove("active"));
     if(mode==="por-crear") tabPorCrear.classList.add("active");
+    if(mode==="listo") tabListo.classList.add("active");
+    if(mode==="calendario") tabCalendario.classList.add("active");
     if(mode==="todos") tabTodos.classList.add("active");
+  }
+
+  function renderList(view){
+    elList.style.display = "block";
+    calWrap.style.display = "none";
+
+    elList.innerHTML = view.slice(0, 80).map(i => {
+      const t = title(i);
+      const e = estado(i) || "—";
+      const prob = problema(i);
+      const fPub = pubDate(i);
+      const fCre = created(i);
+
+      const notion = i.url || "";
+      const canva = i.property_url || "";
+
+      const chip = POR_CREAR.has(e) ? "Por crear" : (LISTO.has(e) ? "Listo" : e);
+
+      return `
+        <div class="item">
+          <div style="min-width:0">
+            <div class="title" title="${t.replaceAll('"','&quot;')}">${t}</div>
+            <div class="meta">
+              <span class="chip">${chip}</span>
+              ${prob ? ` <span class="chip">Problema: ${prob}</span>` : "" }
+              ${fPub ? ` <span class="chip">Publicación: ${fmt(fPub)}</span>` : "" }
+            </div>
+          </div>
+          <div class="right">
+            <div class="meta">Creado: ${fmt(fCre)}</div>
+            <div>
+              ${notion ? `<a href="${notion}" target="_blank" rel="noreferrer">Notion</a>` : "" }
+              ${canva ? ` · <a href="${canva}" target="_blank" rel="noreferrer">Canva</a>` : "" }
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderCalendar(itemsWithPub){
+    elList.style.display = "none";
+    calWrap.style.display = "block";
+
+    if(itemsWithPub.length === 0){
+      calWrap.innerHTML = '<div class="muted">No hay items con <b>property_fecha_publicacion</b> cargada en Notion todavía.</div>';
+      return;
+    }
+
+    // agrupar por día
+    const map = new Map();
+    itemsWithPub.forEach(i => {
+      const d = fmtDay(pubDate(i));
+      if(!d) return;
+      if(!map.has(d)) map.set(d, []);
+      map.get(d).push(i);
+    });
+
+    // ordenar días
+    const days = Array.from(map.keys()).sort((a,b)=> a.localeCompare(b));
+
+    calWrap.innerHTML = days.map(day => {
+      const evs = map.get(day).slice().sort((a,b)=> (pubDate(a)||"").localeCompare(pubDate(b)||""));
+      const eventsHtml = evs.map(i => {
+        const t = title(i);
+        const u = i.url || "";
+        const hour = fmt(pubDate(i));
+        return `<div class="ev" title="${t.replaceAll('"','&quot;')}">${u ? `<a href="${u}" target="_blank" rel="noreferrer">${t}</a>` : t} <span style="opacity:.7">· ${hour}</span></div>`;
+      }).join("");
+
+      return `
+        <div class="day">
+          <h3>${day}</h3>
+          ${eventsHtml}
+        </div>
+      `;
+    }).join("");
   }
 
   function render(){
     const q = (elQ.value || "").toLowerCase().trim();
 
-    // ✅ Regla nueva
-    const porCrear = ITEMS.filter(i => estado(i) === "generado");
-    const otros = ITEMS.filter(i => estado(i) !== "generado");
+    const porCrear = ITEMS.filter(i => POR_CREAR.has(estado(i)));
+    const listo = ITEMS.filter(i => LISTO.has(estado(i)));
+    const enCal = ITEMS.filter(i => !!pubDate(i));
 
     elTotal.textContent = ITEMS.length;
     elPorCrear.textContent = porCrear.length;
-    elOtros.textContent = otros.length;
+    elListo.textContent = listo.length;
+    elEnCal.textContent = enCal.length;
 
-    let view = (mode==="por-crear") ? porCrear : ITEMS;
+    let view = ITEMS;
+    if(mode==="por-crear") view = porCrear;
+    if(mode==="listo") view = listo;
+    if(mode==="todos") view = ITEMS;
 
-    if(q) view = view.filter(i => title(i).toLowerCase().includes(q));
-    view = view.slice().sort((a,b)=> (fecha(a)||"").localeCompare(fecha(b)||""));
+    if(mode==="calendario"){
+      const filteredCal = enCal.filter(i => {
+        if(!q) return true;
+        return (title(i).toLowerCase().includes(q) || (problema(i)||"").toLowerCase().includes(q));
+      });
+      renderCalendar(filteredCal);
+      elFoot.textContent = `Calendario: ${filteredCal.length} items con fecha de publicación.`;
+      return;
+    }
 
-    elList.innerHTML = view.slice(0, 60).map(i => {
-      const t = title(i);
-      const e = estado(i) || "—";
-      const f = fmt(fecha(i));
-      const u = i.url || "";
-      return `
-        <div class="item">
-          <div style="min-width:0">
-            <div class="title" title="${t.replaceAll('"','&quot;')}">${t}</div>
-            <div class="meta">Estado: ${e} · Acción: ${i.property_accion || "—"}</div>
-          </div>
-          <div class="right">
-            <div class="meta">${f}</div>
-            ${u ? `<a href="${u}" target="_blank" rel="noreferrer">Abrir en Notion →</a>` : ``}
-          </div>
-        </div>
-      `;
-    }).join("");
+    if(q){
+      view = view.filter(i => title(i).toLowerCase().includes(q) || (problema(i)||"").toLowerCase().includes(q));
+    }
 
-    elFoot.textContent = `Mostrando ${Math.min(60, view.length)} de ${view.length} (${mode}).`;
+    // orden: por fecha de creación
+    view = view.slice().sort((a,b)=> (created(a)||"").localeCompare(created(b)||""));
+
+    renderList(view);
+    elFoot.textContent = `Mostrando ${Math.min(80, view.length)} de ${view.length} (${mode}).`;
   }
 
   tabPorCrear.onclick = () => { mode="por-crear"; setActive(); render(); };
+  tabListo.onclick = () => { mode="listo"; setActive(); render(); };
+  tabCalendario.onclick = () => { mode="calendario"; setActive(); render(); };
   tabTodos.onclick = () => { mode="todos"; setActive(); render(); };
   document.getElementById("refresh").onclick = () => location.reload();
   elQ.oninput = render;

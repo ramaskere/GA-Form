@@ -1,202 +1,151 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>GO APPLE — Formulario</title>
-
-<script>
-!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init','TU_PIXEL_ID'); fbq('track','PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=TU_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
-
-<style>
-  :root{ --bg:#ffffff; --surface:#ffffff; --line:#e6e6e9; --ink:#1d1d1f; --muted:#6e6e73; --accent:#0071e3; --radius:16px; }
-  *{box-sizing:border-box} html,body{height:100%}
-  body{ margin:0; background:linear-gradient(180deg,#f7f8fb,#eef1f6); color:var(--ink);
-        font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-        display:grid; place-items:center; padding:18px; }
-  .card{ width:min(640px,94vw); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-         box-shadow:0 20px 60px rgba(0,0,0,.10); overflow:hidden; }
-  header{ padding:20px 22px 0; text-align:center; }
-  h1{ margin:0; font-size:24px; font-weight:800; } 
-  p.lead{ margin:8px 0 16px; color:#424245; font-size:15px; }
-  .form-body{ padding:18px; display:grid; gap:14px; } .row{ display:grid; gap:10px; }
-  label{ font-size:13px; color:#424245; font-weight:600; }
-  input,select{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fafafa; font-size:14px; outline:none; }
-  .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:4px; }
-  .btn{ appearance:none; padding:11px 16px; border-radius:999px; font-weight:700; cursor:pointer; border:1px solid #cfd2d8; background:#fff; }
-  .btn.primary{ background:var(--accent); color:#fff; border-color:var(--accent); } .btn:hover{ filter:brightness(.98); }
-  .hidden{ display:none !important; } 
-  footer.note{ padding:0 18px 18px; color:#6e6e73; font-size:12.5px; text-align:center; }
-
-  .final-wrap{ padding:26px 22px 28px; text-align:center; }
-  .final-emoji{ font-size:42px; }
-  .final-title{ margin:10px 0 6px; font-size:22px; font-weight:800; }
-  .final-text{ margin:0 auto; max-width:520px; color:#424245; font-size:15px; line-height:1.45; }
-  .final-badge{ display:inline-block; margin-top:14px; padding:6px 12px; border-radius:999px; background:#eff6ff; color:#1e40af; font-weight:700; font-size:12.5px; border:1px solid #dbeafe; }
-  .final-ok{ margin-top:16px; padding:10px 16px; border-radius:999px; border:1px solid #cfd2d8; background:#fff; font-weight:700; cursor:default; color:#1d1d1f; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard de Contenido</title>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; margin:0; background:#0b0b0c; color:#f2f2f2; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 26px; margin: 0 0 14px; }
+    .grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px; }
+    .card { border:1px solid #2a2a2a; border-radius:12px; padding:16px; background:#101012; }
+    .label { font-size:12px; opacity:.7; }
+    .num { font-size:34px; font-weight:800; margin-top:6px; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; }
+    input { background:#121214; border:1px solid #2a2a2a; color:#fff; padding:10px 12px; border-radius:10px; min-width: 240px; }
+    .btn { cursor:pointer; user-select:none; padding:10px 12px; border-radius:10px; border:1px solid #2a2a2a; background:#121214; color:#fff; }
+    .btn.active { border-color:#6b6bff; }
+    .list { margin-top:14px; border:1px solid #2a2a2a; border-radius:12px; overflow:hidden; background:#101012; }
+    .item { display:flex; justify-content:space-between; gap:12px; padding:12px 14px; border-top:1px solid #2a2a2a; }
+    .item:first-child { border-top:none; }
+    .title { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 680px; }
+    .meta { font-size:12px; opacity:.75; margin-top:4px; }
+    a { color:#9aa0ff; text-decoration:none; font-size:12px; }
+    .right { text-align:right; white-space:nowrap; }
+    .muted { opacity:.7; margin-top:10px; font-size:12px; }
+  </style>
 </head>
 <body>
-<main class="card" role="dialog" aria-modal="true" aria-labelledby="form-title">
-  <header id="hdr">
-    <h1 id="form-title">🔥 Ganá 10% de Descuento 🔥</h1>
-    <p class="lead" id="form-lead">Completá el formulario y accedé a un <strong>10% OFF</strong> en tu próximo iPhone.</p>
-  </header>
+  <div class="wrap">
+    <h1>📅 Dashboard de Contenido</h1>
 
-  <section class="form-body" id="form-body">
-    <div id="step1" class="row">
-      <div>
-        <label for="lf-name">Nombre</label>
-        <input id="lf-name" type="text" placeholder="Tu nombre" autocomplete="name" />
+    <div class="grid">
+      <div class="card">
+        <div class="label">Total</div>
+        <div class="num" id="total">—</div>
       </div>
-      <div>
-        <label for="lf-email">Correo</label>
-        <input id="lf-email" type="email" placeholder="tu@email.com" autocomplete="email" />
+      <div class="card">
+        <div class="label">⏳ Por crear (nuevo)</div>
+        <div class="num" id="porCrear">—</div>
       </div>
-      <div>
-        <label for="lf-phone">WhatsApp</label>
-        <input id="lf-phone" type="tel" placeholder="+54 9 ..." inputmode="tel" autocomplete="tel" />
-      </div>
-      <div class="actions">
-        <button class="btn" id="cancel">Cancelar</button>
-        <button class="btn primary" id="next">Continuar</button>
+      <div class="card">
+        <div class="label">✅ Generados</div>
+        <div class="num" id="generados">—</div>
       </div>
     </div>
 
-    <div id="step2" class="row hidden">
-      <div>
-        <label for="lf-budget">¿Cuál es tu inversión (ARS)?</label>
-        <select id="lf-budget">
-          <option value="menos">Menos de $300.000</option>
-          <option value="400-600">$400.000 a $600.000</option>
-          <option value="700-900">$700.000 a $900.000</option>
-          <option value="mas900">Más de $900.000</option>
-        </select>
-      </div>
-      <div class="actions">
-        <button class="btn" id="back">Volver</button>
-        <button class="btn primary" id="send">Enviar</button>
-      </div>
+    <div class="row">
+      <input id="q" placeholder="Buscar por título..." />
+      <button class="btn active" id="tabNuevo">Por crear</button>
+      <button class="btn" id="tabGenerado">Generados</button>
+      <button class="btn" id="tabTodos">Todos</button>
+      <button class="btn" id="refresh">↻ Refrescar</button>
     </div>
-  </section>
 
-  <footer class="note" id="note">Completando el formulario obtenés tu beneficio del 10% OFF.</footer>
-</main>
+    <div class="list" id="list"></div>
+    <div class="muted" id="foot"></div>
+  </div>
 
 <script>
-(function(){
-  const KEY='lead_form_done_v1';
-  const KEY_LOW='lead_low_budget_v1';
+  const API = "/api/content";
 
-  const $hdr=document.getElementById('hdr');
-  const $body=document.getElementById('form-body');
-  const $note=document.getElementById('note');
+  function estado(it){ return (it.property_estado || "").toLowerCase().trim(); }
+  function fecha(it){ return it.property_fecha_de_creaci_n?.start || null; }
+  function title(it){ return it.property_nombre || it.name || "Sin título"; }
 
-  const $s1=document.getElementById('step1');
-  const $s2=document.getElementById('step2');
-  const $name=document.getElementById('lf-name');
-  const $mail=document.getElementById('lf-email');
-  const $tel=document.getElementById('lf-phone');
-  const $bud=document.getElementById('lf-budget');
-
-  if (sessionStorage.getItem(KEY_LOW) === '1') { renderFinalMessage(); disableFormForever(); }
-
-  // ✅ Validaciones
-  const digits = (v)=> String(v||'').replace(/[^\d]/g,'');
-  const nameOk = (v)=> String(v||'').trim().length >= 2;
-  const phoneOk= (v)=> digits(v).length >= 6;
-
-  // 👉 Cambiado: usar checkValidity() nativo
-  const emailOk = () => {
-    const v = String($mail.value || '').trim();
-    if ($mail && typeof $mail.checkValidity === 'function') {
-      return v.length > 3 && $mail.checkValidity();
-    }
-    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(v);
-  };
-
-  function collectUTMs(){ const q=new URLSearchParams(location.search); return {utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||''}; }
-
-  async function postJSON(url, body, {timeout=6000, corsMode}={}){
-    const ctrl = new AbortSignal.abort ? new AbortController() : {signal: undefined};
-    let id; if (ctrl.signal) id = setTimeout(()=>ctrl.abort(), timeout);
-    try{
-      const res = await fetch(url, {
-        method:'POST',
-        headers: corsMode==='no-cors' ? undefined : {'Content-Type':'application/json'},
-        body: corsMode==='no-cors' ? new Blob([JSON.stringify(body)], {type:'text/plain;charset=utf-8'}) : JSON.stringify(body),
-        mode: corsMode || 'cors',
-        keepalive: true,
-        signal: ctrl.signal,
-      });
-      if (id) clearTimeout(id);
-      return corsMode==='no-cors' ? true : !!res.ok;
-    }catch(_){
-      if (id) clearTimeout(id);
-      return false;
-    }
+  function fmt(iso){
+    if(!iso) return "Sin fecha";
+    const d = new Date(iso);
+    if(Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleString("es-AR", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
   }
 
-  document.getElementById('next').onclick=()=>{
-    if(!nameOk($name.value) || !emailOk()){
-      alert('Completá nombre y correo válidos.');
-      return;
-    }
-    $s1.classList.add('hidden'); $s2.classList.remove('hidden'); $bud.focus();
-  };
-  document.getElementById('back').onclick=()=>{ $s2.classList.add('hidden'); $s1.classList.remove('hidden'); };
-  document.getElementById('cancel').onclick=()=>{ history.back(); };
+  let items = [];
+  let mode = "nuevo";
 
-  function renderFinalMessage(){
-    $hdr.innerHTML='<div class="final-wrap"><div class="final-emoji">👋</div><h2 class="final-title">¡Gracias por tu interés!</h2><p class="final-text">Por el momento no contamos con stock dentro de ese presupuesto. En breve ingresan iPhones nuevos 📲. Te voy a contactar apenas tengamos disponibilidad para que aproveches tu <strong>10% OFF</strong>.</p><span class="final-badge">Tu solicitud quedó registrada</span><div><button class="final-ok" aria-disabled="true">Entendido</button></div></div>';
-    $body.remove(); $note.textContent='Nos pondremos en contacto automáticamente ni bien haya disponibilidad.';
+  const elTotal = document.getElementById("total");
+  const elPorCrear = document.getElementById("porCrear");
+  const elGenerados = document.getElementById("generados");
+  const elList = document.getElementById("list");
+  const elFoot = document.getElementById("foot");
+  const elQ = document.getElementById("q");
+
+  const tabNuevo = document.getElementById("tabNuevo");
+  const tabGenerado = document.getElementById("tabGenerado");
+  const tabTodos = document.getElementById("tabTodos");
+
+  function setActive(){
+    [tabNuevo, tabGenerado, tabTodos].forEach(b => b.classList.remove("active"));
+    if(mode==="nuevo") tabNuevo.classList.add("active");
+    if(mode==="generado") tabGenerado.classList.add("active");
+    if(mode==="todos") tabTodos.classList.add("active");
   }
-  function disableFormForever(){ sessionStorage.setItem(KEY,'1'); sessionStorage.setItem(KEY_LOW,'1'); try{ history.pushState({blocked:true}, ''); window.addEventListener('popstate',()=>history.pushState({blocked:true}, '')); }catch(_){} }
 
-  document.getElementById('send').onclick=async ()=>{
-    const name  = String($name.value||'').trim();
-    const email = String($mail.value||'').trim();
-    const phone = String($tel.value||'').trim();
-    const budget= ($bud.value||'').trim();
+  function render(){
+    const q = (elQ.value || "").toLowerCase().trim();
 
-    if(!nameOk(name) || !emailOk() || !phoneOk(phone)){
-      alert('Completá nombre, correo y WhatsApp válidos.'); return;
-    }
+    const porCrear = items.filter(i => estado(i)==="nuevo");
+    const generados = items.filter(i => estado(i)==="generado");
 
-    const params=new URLSearchParams(location.search);
-    params.set('name',name); params.set('email',email); params.set('phone',phone); params.set('budget',budget);
-    history.replaceState({},'',location.pathname+'?'+params.toString());
-    sessionStorage.setItem(KEY,'1');
+    elTotal.textContent = items.length;
+    elPorCrear.textContent = porCrear.length;
+    elGenerados.textContent = generados.length;
 
-    const utm = collectUTMs();
-    const fullPayload = { timestamp:new Date().toISOString(), name, email, phone, budget, ...utm, page:location.href, user_agent:navigator.userAgent };
-    const minPayload  = { nombre:name, telefono:phone, presupuesto:budget, modelo:'', ciudad:'', pais:'', califica:'', origen:'goapple-form' };
+    let view = items;
+    if(mode==="nuevo") view = porCrear;
+    if(mode==="generado") view = generados;
 
-    // Intento confirmación real
-    let okRail = await postJSON('https://primary-production-639e.up.railway.app/webhook/goapple-leads', fullPayload, {timeout:7000});
-    if (!okRail && navigator.sendBeacon) {
-      try { navigator.sendBeacon('https://primary-production-639e.up.railway.app/webhook/goapple-leads', new Blob([JSON.stringify(fullPayload)], {type:'application/json'})); } catch(_) {}
-      okRail = true;
-    }
+    if(q) view = view.filter(i => title(i).toLowerCase().includes(q));
+    view = view.slice().sort((a,b)=> (fecha(a)||"").localeCompare(fecha(b)||""));
 
-    // GAS paralelo (no-cors)
-    postJSON('https://script.google.com/macros/s/AKfycbylGa6uEn3VBxduqgZfh1MeCFX0g_6NJaL7skg8LwSjMHsWpd4s212pf1v26UI-Ji0/exec', minPayload, {timeout:7000, corsMode:'no-cors'});
+    elList.innerHTML = view.slice(0, 40).map(i => {
+      const t = title(i);
+      const e = estado(i) || "—";
+      const f = fmt(fecha(i));
+      const u = i.url || "";
+      return `
+        <div class="item">
+          <div style="min-width:0">
+            <div class="title" title="${t.replaceAll('"','&quot;')}">${t}</div>
+            <div class="meta">Estado: ${e} · Acción: ${i.property_accion || "—"}</div>
+          </div>
+          <div class="right">
+            <div class="meta">${f}</div>
+            ${u ? `<a href="${u}" target="_blank" rel="noreferrer">Abrir en Notion →</a>` : ``}
+          </div>
+        </div>
+      `;
+    }).join("");
 
-    try{ if(window.fbq){ fbq('track','Lead',{ value: budget==='400-600'?500000 : budget==='700-900'?800000 : budget==='mas900'?1000000:0, currency:'ARS' }); } }catch(_){}
+    elFoot.textContent = `Mostrando ${Math.min(40, view.length)} de ${view.length} (${mode}).`;
+  }
 
-    if(budget==='menos'){ renderFinalMessage(); disableFormForever(); return; }
+  async function load(){
+    const res = await fetch(API, { cache: "no-store" });
+    items = await res.json();
+    if(!Array.isArray(items)) items = items.items || [];
+    render();
+  }
 
-    await new Promise(r=>setTimeout(r, 700));
-    const msg='👋 ¡Hola! Tengo un cupón de 10% de descuento';
-    location.replace('https://wa.me/5492646721845?text='+encodeURIComponent(msg));
-  };
-})();
+  tabNuevo.onclick = () => { mode="nuevo"; setActive(); render(); };
+  tabGenerado.onclick = () => { mode="generado"; setActive(); render(); };
+  tabTodos.onclick = () => { mode="todos"; setActive(); render(); };
+  document.getElementById("refresh").onclick = load;
+  elQ.oninput = render;
+
+  setActive();
+  load();
 </script>
 </body>
 </html>

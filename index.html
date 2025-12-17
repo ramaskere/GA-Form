@@ -36,21 +36,20 @@
         <div class="num" id="total">—</div>
       </div>
       <div class="card">
-        <div class="label">⏳ Por crear (nuevo)</div>
+        <div class="label">⏳ Por crear (estado: generado)</div>
         <div class="num" id="porCrear">—</div>
       </div>
       <div class="card">
-        <div class="label">✅ Generados</div>
-        <div class="num" id="generados">—</div>
+        <div class="label">✅ Otros estados</div>
+        <div class="num" id="otros">—</div>
       </div>
     </div>
 
     <div class="row">
       <input id="q" placeholder="Buscar por título..." />
-      <button class="btn active" id="tabNuevo">Por crear</button>
-      <button class="btn" id="tabGenerado">Generados</button>
+      <button class="btn active" id="tabPorCrear">Por crear</button>
       <button class="btn" id="tabTodos">Todos</button>
-      <button class="btn" id="refresh">↻ Refrescar</button>
+      <button class="btn" id="refresh">↻ Actualizar (recargar)</button>
     </div>
 
     <div class="list" id="list"></div>
@@ -58,7 +57,8 @@
   </div>
 
 <script>
-  const API = "/api/content";
+  // ✅ Datos embebidos desde n8n (sin fetch)
+  const ITEMS = [{"id":"28e4630b-a135-8109-81f5-ddc4321941db","name":"No pierdas tiempo: protegé tu iPhone robado con un bloqueo instantáneo","url":"https://www.notion.so/No-pierdas-tiempo-proteg-tu-iPhone-robado-con-un-bloqueo-instant-neo-28e4630ba135810981f5ddc4321941db","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:35:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"No pierdas tiempo: protegé tu iPhone robado con un bloqueo instantáneo"},{"id":"28e4630b-a135-8145-a290-e02f22e9ab9d","name":"Llevate el iPhone que querés sin reventar tu bolsillo de una","url":"https://www.notion.so/Llevate-el-iPhone-que-quer-s-sin-reventar-tu-bolsillo-de-una-28e4630ba1358145a290e02f22e9ab9d","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:33:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Llevate el iPhone que querés sin reventar tu bolsillo de una"},{"id":"28e4630b-a135-8163-aadb-c3c7a79dc693","name":"Si te roban el iPhone, podés bloquearlo en segundos desde cualquier lugar","url":"https://www.notion.so/Si-te-roban-el-iPhone-pod-s-bloquearlo-en-segundos-desde-cualquier-lugar-28e4630ba1358163aadbc3c7a79dc693","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:35:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Si te roban el iPhone, podés bloquearlo en segundos desde cualquier lugar"},{"id":"28e4630b-a135-8184-81d7-ff8c4ecf4577","name":"No esperes meses: estrena tu iPhone ahora y pagá tranqui","url":"https://www.notion.so/No-esperes-meses-estrena-tu-iPhone-ahora-y-pag-tranqui-28e4630ba135818481d7ff8c4ecf4577","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:33:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"No esperes meses: estrena tu iPhone ahora y pagá tranqui"},{"id":"28e4630b-a135-8184-ab8d-f8649abeb2c4","name":"Tu próximo iPhone, sin dudas ni vueltas: garantía incluida desde el inicio","url":"https://www.notion.so/Tu-pr-ximo-iPhone-sin-dudas-ni-vueltas-garant-a-incluida-desde-el-inicio-28e4630ba1358184ab8df8649abeb2c4","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:37:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Tu próximo iPhone, sin dudas ni vueltas: garantía incluida desde el inicio"},{"id":"28e4630b-a135-8188-bdcd-dc39a1861909","name":"Pagalo en cuotas fijas y empezá a usar tu iPhone hoy mismo","url":"https://www.notion.so/Pagalo-en-cuotas-fijas-y-empez-a-usar-tu-iPhone-hoy-mismo-28e4630ba1358188bdcddc39a1861909","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:33:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Pagalo en cuotas fijas y empezá a usar tu iPhone hoy mismo"},{"id":"28e4630b-a135-8190-a752-de1bfe834d1b","name":"Tu iPhone puede estar robado, pero tus datos no tienen por qué estar en riesgo","url":"https://www.notion.so/Tu-iPhone-puede-estar-robado-pero-tus-datos-no-tienen-por-qu-estar-en-riesgo-28e4630ba1358190a752de1bfe834d1b","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:35:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Tu iPhone puede estar robado, pero tus datos no tienen por qué estar en riesgo"},{"id":"28e4630b-a135-81a0-93ae-f6f8e7a07b38","name":"Volvé al desbloqueo instantáneo sin sacarte el barbijo","url":"https://www.notion.so/Volv-al-desbloqueo-instant-neo-sin-sacarte-el-barbijo-28e4630ba13581a093aef6f8e7a07b38","property_problema_relacionado":null,"property_estado":"nuevo","property_fecha_de_creaci_n":{"start":"2025-10-15T22:56:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Volvé al desbloqueo instantáneo sin sacarte el barbijo"},{"id":"28e4630b-a135-81c7-9c57-d9873666e6d5","name":"Olvidate de comprar usado sin respaldo, asegurate un iPhone garantizado","url":"https://www.notion.so/Olvidate-de-comprar-usado-sin-respaldo-asegurate-un-iPhone-garantizado-28e4630ba13581c79c57d9873666e6d5","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:37:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Olvidate de comprar usado sin respaldo, asegurate un iPhone garantizado"},{"id":"28e4630b-a135-81f5-9196-e92210d71a8e","name":"Comprá tu iPhone con garantía total y dormí tranquilo desde el primer día","url":"https://www.notion.so/Compr-tu-iPhone-con-garant-a-total-y-dorm-tranquilo-desde-el-primer-d-a-28e4630ba13581f59196e92210d71a8e","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-10-15T23:37:00.000-04:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Comprá tu iPhone con garantía total y dormí tranquilo desde el primer día"},{"id":"2cc4630b-a135-813f-a396-ddbb44a72c9a","name":"Pagalo en cuotas y empezá a estrenar tu iPhone hoy mismo","url":"https://www.notion.so/Pagalo-en-cuotas-y-empez-a-estrenar-tu-iPhone-hoy-mismo-2cc4630ba135813fa396ddbb44a72c9a","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:29:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Pagalo en cuotas y empezá a estrenar tu iPhone hoy mismo"},{"id":"2cc4630b-a135-815d-ae65-e60e20806876","name":"Accedé a un iPhone sin arruinar tu economía personal","url":"https://www.notion.so/Acced-a-un-iPhone-sin-arruinar-tu-econom-a-personal-2cc4630ba135815dae65e60e20806876","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:28:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Accedé a un iPhone sin arruinar tu economía personal"},{"id":"2cc4630b-a135-817a-8fd4-e923751ef83f","name":"Tu iPhone nuevo puede ser realidad con nuestros planes sin vueltas","url":"https://www.notion.so/Tu-iPhone-nuevo-puede-ser-realidad-con-nuestros-planes-sin-vueltas-2cc4630ba135817a8fd4e923751ef83f","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:29:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Tu iPhone nuevo puede ser realidad con nuestros planes sin vueltas"},{"id":"2cc4630b-a135-817e-900e-feab9b8064a0","name":"Tu primer iPhone puede estar más cerca de lo que pensás","url":"https://www.notion.so/Tu-primer-iPhone-puede-estar-m-s-cerca-de-lo-que-pens-s-2cc4630ba135817e900efeab9b8064a0","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:28:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"Tu primer iPhone puede estar más cerca de lo que pensás"},{"id":"2cc4630b-a135-81dd-ac98-de4abc9bdc32","name":"¿Sin plata para un iPhone? Tenemos un plan justo para vos","url":"https://www.notion.so/Sin-plata-para-un-iPhone-Tenemos-un-plan-justo-para-vos-2cc4630ba13581ddac98de4abc9bdc32","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:29:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"¿Sin plata para un iPhone? Tenemos un plan justo para vos"},{"id":"2cc4630b-a135-81f5-8544-c6d23c6d46fb","name":"No necesitás pagar todo junto para tener un iPhone hoy mismo","url":"https://www.notion.so/No-necesit-s-pagar-todo-junto-para-tener-un-iPhone-hoy-mismo-2cc4630ba13581f58544c6d23c6d46fb","property_problema_relacionado":null,"property_estado":"generado","property_fecha_de_creaci_n":{"start":"2025-12-17T14:28:00.000-05:00","end":null,"time_zone":null},"property_accion":"GENERAR_CONTENIDOS","property_nombre":"No necesitás pagar todo junto para tener un iPhone hoy mismo"}];
 
   function estado(it){ return (it.property_estado || "").toLowerCase().trim(); }
   function fecha(it){ return it.property_fecha_de_creaci_n?.start || null; }
@@ -71,45 +71,41 @@
     return d.toLocaleString("es-AR", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
   }
 
-  let items = [];
-  let mode = "nuevo";
+  let mode = "por-crear";
 
   const elTotal = document.getElementById("total");
   const elPorCrear = document.getElementById("porCrear");
-  const elGenerados = document.getElementById("generados");
+  const elOtros = document.getElementById("otros");
   const elList = document.getElementById("list");
   const elFoot = document.getElementById("foot");
   const elQ = document.getElementById("q");
 
-  const tabNuevo = document.getElementById("tabNuevo");
-  const tabGenerado = document.getElementById("tabGenerado");
+  const tabPorCrear = document.getElementById("tabPorCrear");
   const tabTodos = document.getElementById("tabTodos");
 
   function setActive(){
-    [tabNuevo, tabGenerado, tabTodos].forEach(b => b.classList.remove("active"));
-    if(mode==="nuevo") tabNuevo.classList.add("active");
-    if(mode==="generado") tabGenerado.classList.add("active");
+    [tabPorCrear, tabTodos].forEach(b => b.classList.remove("active"));
+    if(mode==="por-crear") tabPorCrear.classList.add("active");
     if(mode==="todos") tabTodos.classList.add("active");
   }
 
   function render(){
     const q = (elQ.value || "").toLowerCase().trim();
 
-    const porCrear = items.filter(i => estado(i)==="nuevo");
-    const generados = items.filter(i => estado(i)==="generado");
+    // ✅ Regla nueva
+    const porCrear = ITEMS.filter(i => estado(i) === "generado");
+    const otros = ITEMS.filter(i => estado(i) !== "generado");
 
-    elTotal.textContent = items.length;
+    elTotal.textContent = ITEMS.length;
     elPorCrear.textContent = porCrear.length;
-    elGenerados.textContent = generados.length;
+    elOtros.textContent = otros.length;
 
-    let view = items;
-    if(mode==="nuevo") view = porCrear;
-    if(mode==="generado") view = generados;
+    let view = (mode==="por-crear") ? porCrear : ITEMS;
 
     if(q) view = view.filter(i => title(i).toLowerCase().includes(q));
     view = view.slice().sort((a,b)=> (fecha(a)||"").localeCompare(fecha(b)||""));
 
-    elList.innerHTML = view.slice(0, 40).map(i => {
+    elList.innerHTML = view.slice(0, 60).map(i => {
       const t = title(i);
       const e = estado(i) || "—";
       const f = fmt(fecha(i));
@@ -128,24 +124,16 @@
       `;
     }).join("");
 
-    elFoot.textContent = `Mostrando ${Math.min(40, view.length)} de ${view.length} (${mode}).`;
+    elFoot.textContent = `Mostrando ${Math.min(60, view.length)} de ${view.length} (${mode}).`;
   }
 
-  async function load(){
-    const res = await fetch(API, { cache: "no-store" });
-    items = await res.json();
-    if(!Array.isArray(items)) items = items.items || [];
-    render();
-  }
-
-  tabNuevo.onclick = () => { mode="nuevo"; setActive(); render(); };
-  tabGenerado.onclick = () => { mode="generado"; setActive(); render(); };
+  tabPorCrear.onclick = () => { mode="por-crear"; setActive(); render(); };
   tabTodos.onclick = () => { mode="todos"; setActive(); render(); };
-  document.getElementById("refresh").onclick = load;
+  document.getElementById("refresh").onclick = () => location.reload();
   elQ.oninput = render;
 
   setActive();
-  load();
+  render();
 </script>
 </body>
 </html>
